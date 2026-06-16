@@ -1,0 +1,2692 @@
+
+<!-- ============================================================
+     SUPABASE SETUP — fill in your project credentials below
+     ============================================================
+     1. Create a free project at https://supabase.com
+     2. In SQL Editor, run the supabase_schema.sql provided
+     3. Go to Project Settings > API and copy:
+        - "Project URL"      -> SUPABASE_URL
+        - "anon public" key  -> SUPABASE_ANON_KEY
+     4. Paste them in the CONFIG block inside <script> below
+     ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4fa;color:#1a2540;font-size:14px;min-height:100vh}
+#app{display:flex;flex-direction:column;min-height:600px}
+#topbar{background:#0f2850;color:#fff;display:flex;align-items:center;padding:0 16px;height:50px;gap:10px;flex-shrink:0}
+#topbar .logo{font-size:16px;font-weight:700;letter-spacing:.5px}
+#topbar .spacer{flex:1}
+#topbar .user-chip{background:rgba(255,255,255,.12);border-radius:20px;padding:3px 10px;font-size:12px;display:flex;align-items:center;gap:6px}
+#main{display:flex;flex:1}
+#sidebar{width:190px;background:#1a3a6b;color:#fff;display:flex;flex-direction:column;padding:10px 0;flex-shrink:0}
+.nav-i{display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;font-size:13px;opacity:.72;transition:all .15s;border-left:3px solid transparent;color:#fff}
+.nav-i:hover{opacity:1;background:rgba(255,255,255,.08)}
+.nav-i.active{opacity:1;background:rgba(255,255,255,.12);border-left-color:#60a5fa}
+.nav-i i{font-size:15px;width:17px;flex-shrink:0}
+.nav-sec{font-size:10px;opacity:.4;padding:12px 16px 3px;text-transform:uppercase;letter-spacing:1px}
+#content{flex:1;overflow-y:auto;padding:18px;min-height:600px}
+.card{background:#fff;border:1px solid #d1daea;border-radius:10px;padding:16px}
+.card-sm{padding:11px 14px}
+.ch{font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:#fff;border:1px solid #d1daea;border-radius:10px;padding:13px 15px}
+.stat .lbl{font-size:11px;color:#5a6a8a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.stat .val{font-size:24px;font-weight:700;line-height:1}
+.stat .sub{font-size:11px;color:#5a6a8a;margin-top:2px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:5px 13px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid #d1daea;background:#fff;color:#1a2540}
+.btn:hover{background:#f0f4fa}
+.bp{background:#2563eb;color:#fff;border-color:#2563eb}.bp:hover{background:#1d4ed8}
+.bd{background:#fee2e2;color:#991b1b;border-color:#fca5a5}.bd:hover{background:#fecaca}
+.bs{background:#dcfce7;color:#15803d;border-color:#86efac}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-xs{padding:2px 8px;font-size:11px;border-radius:5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.fr{margin-bottom:12px}
+.fl{font-size:12px;font-weight:500;color:#5a6a8a;margin-bottom:3px;display:block}
+.fc{width:100%;padding:7px 10px;border:1px solid #d1daea;border-radius:7px;font-size:13px;background:#fff;color:#1a2540;outline:none}
+.fc:focus{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+textarea.fc{resize:vertical;min-height:56px}
+.fck{display:flex;align-items:center;gap:8px;padding:6px 0}
+.fck input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:#2563eb}
+.fck label{font-size:13px;cursor:pointer}
+.form-scroll{max-height:62vh;overflow-y:auto;padding-right:6px;padding-bottom:8px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f5f7fc;padding:7px 11px;text-align:left;font-weight:600;font-size:11px;color:#5a6a8a;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #d1daea;white-space:nowrap}
+td{padding:8px 11px;border-bottom:1px solid #f0f2f8;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8faff}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.bg{background:#dcfce7;color:#15803d}
+.br{background:#fee2e2;color:#991b1b}
+.ba{background:#fef9c3;color:#854d0e}
+.bb{background:#dbeafe;color:#1e40af}
+.bgr{background:#f1f3f9;color:#475569}
+.toast-wrap{position:fixed;top:14px;right:14px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:9px 15px;border-radius:8px;font-size:13px;max-width:300px;border:1px solid}
+.ts{background:#dcfce7;color:#14532d;border-color:#86efac}
+.te{background:#fee2e2;color:#7f1d1d;border-color:#fca5a5}
+.ti{background:#dbeafe;color:#1e3a8a;border-color:#93c5fd}
+#login-wrap{min-height:600px;background:#0f2850;display:flex;align-items:center;justify-content:center}
+.lcard{background:#fff;border-radius:14px;padding:32px 28px;width:340px}
+.llogo{text-align:center;margin-bottom:20px}
+.llogo .plane{font-size:32px;margin-bottom:5px}
+.llogo h1{font-size:18px;font-weight:700;color:#0f2850;margin-bottom:2px}
+.llogo p{font-size:12px;color:#5a6a8a}
+.lerr{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:7px;padding:7px 11px;font-size:12px;margin-bottom:11px}
+.mbd{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;z-index:500;padding-top:40px;overflow-y:auto}
+.modal{background:#fff;border-radius:12px;padding:22px;width:92%;max-width:600px;max-height:80vh;overflow-y:auto}
+.modal-lg{max-width:700px}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #d1daea}
+.mt{font-size:15px;font-weight:600}
+.mc{background:none;border:none;cursor:pointer;font-size:18px;color:#5a6a8a;padding:2px 6px;border-radius:5px}
+.mc:hover{background:#f0f4fa}
+.fc-card{background:#fff;border:1px solid #d1daea;border-radius:10px;padding:13px 15px;cursor:pointer;transition:all .15s;margin-bottom:9px}
+.fc-card:hover{border-color:#2563eb;box-shadow:0 2px 10px rgba(37,99,235,.1)}
+.flight-card-orange{background:#fff7ed!important;border-color:#fb923c!important;border-left:4px solid #f97316!important}
+.flight-card-red{background:#fff5f5!important;border-color:#f87171!important;border-left:4px solid #dc2626!important}
+.flight-card-green{background:#f0fdf4!important;border-color:#86efac!important;border-left:4px solid #16a34a!important}
+.flight-card-yellow{background:#fefce8!important;border-color:#fde047!important;border-left:4px solid #ca8a04!important}
+.flight-card-grey{background:#f8faff!important;border-color:#cbd5e1!important;opacity:.7}
+.flight-card-default{}
+.color-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;align-items:center}
+.color-legend span{display:inline-flex;align-items:center;gap:4px}
+.cleg{width:12px;height:12px;border-radius:3px;display:inline-block}
+.tabs{display:flex;border-bottom:2px solid #d1daea;margin-bottom:16px}
+.tab{padding:7px 15px;cursor:pointer;font-size:13px;font-weight:500;color:#5a6a8a;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab:hover{color:#1a2540}
+.tab.active{color:#2563eb;border-bottom-color:#2563eb}
+.sec-t{font-size:11px;font-weight:600;color:#5a6a8a;text-transform:uppercase;letter-spacing:.6px;margin:13px 0 7px;padding-bottom:3px;border-bottom:1px solid #d1daea}
+.al-item{border:1px solid #d1daea;border-radius:9px;padding:11px 13px;margin-bottom:7px;display:flex;align-items:flex-start;gap:9px}
+.al-item.critical{border-color:#fca5a5;background:#fff5f5}
+.al-item.high{border-color:#fed7aa;background:#fffbf5}
+.al-item.medium{border-color:#fef08a;background:#fffef0}
+.al-item.low{border-color:#bbf7d0;background:#f0fdf4}
+.notebox{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:9px 12px;font-size:12px;color:#92400e;margin-bottom:12px}
+.flex{display:flex}.ic{align-items:center}.jb{justify-content:space-between}.g1{gap:4px}.g2x{gap:8px}.g3x{gap:12px}.g4x{gap:16px}.f1{flex:1}.wrap{flex-wrap:wrap}
+.mb1{margin-bottom:4px}.mb2{margin-bottom:8px}.mb3{margin-bottom:12px}.mb4{margin-bottom:16px}.mt2{margin-top:8px}.mt3{margin-top:12px}
+.sm{font-size:12px}.xs{font-size:11px}.mut{color:#5a6a8a}.rgt{text-align:right}.bld{font-weight:600}.w100{width:100%}
+.sb-btm{margin-top:auto;padding:10px 13px;border-top:1px solid rgba(255,255,255,.08)}
+.stor-bar{background:#e8f0fe;border:1px solid #b3c8f5;border-radius:6px;padding:6px 10px;font-size:11px;color:#1e40af;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+</style>
+
+<div id="toasts" class="toast-wrap"></div>
+<div id="app"></div>
+
+<script>
+const STORE_KEY = 'fiars_v19';
+// Auto-refresh alerts every 60 seconds
+setInterval(()=>{if(DB&&S.loggedIn){generateAlerts();if(S.nav==='alerts'||S.nav==='dashboard')render();}},60000);
+const DEFAULT_SEED = {
+  users:[
+    {ID:1,DisplayName:'Islam',Username:'islam',Password:'123456',Role:'Manager',Department:'All',IsActive:true,AuthProvisioned:false,CreatedAt:'2025-05-13T05:00:00',CreatedBy:'system'},
+    {ID:2,DisplayName:'Rasheed',Username:'rasheed',Password:'123456',Role:'Duty Manager',Department:'All',IsActive:true,AuthProvisioned:false,CreatedAt:'2025-05-13T05:00:00',CreatedBy:'system'},
+    {ID:3,DisplayName:'Anas',Username:'anas',Password:'123456',Role:'Agent',Department:'FIC/Ramp',IsActive:true,AuthProvisioned:false,CreatedAt:'2025-05-13T05:00:00',CreatedBy:'system'},
+    {ID:4,DisplayName:'Feras',Username:'feras',Password:'123456',Role:'Agent',Department:'Basement/LC',IsActive:true,AuthProvisioned:false,CreatedAt:'2025-05-13T05:00:00',CreatedBy:'system'},
+    {ID:5,DisplayName:'Khalid',Username:'khalid',Password:'123456',Role:'OCC Agent',Department:'All',IsActive:true,AuthProvisioned:false,CreatedAt:'2026-05-20T05:00:00',CreatedBy:'system'},
+  ],
+  flights:[
+    {ID:1,FlightNo:'SV101',ServiceType:'Terminating',FlightDate:'2026-05-20',Airline:'SV',ArrFlightNo:'SV101',DepFlightNo:'',Origin:'JED',Destination:'MED',SDA:'2026-05-20',SDD:'',ADA:'',ADD:'',STA:'0500',STD:'',ATA:'',ATD:'',ParkingStand:'A01',AircraftType:'B737',AircraftRegistration:'HZ-AK01',Status:'Scheduled',IsDeleted:false,CreatedByUser:'rasheed',UpdatedByUser:'rasheed',DeleteReason:''},
+    {ID:2,FlightNo:'SV202',ServiceType:'Terminating',FlightDate:'2026-05-20',Airline:'SV',ArrFlightNo:'SV202',DepFlightNo:'',Origin:'RUH',Destination:'MED',SDA:'2026-05-20',SDD:'',ADA:'',ADD:'',STA:'0800',STD:'',ATA:'0802',ATD:'',ParkingStand:'B03',AircraftType:'A320',AircraftRegistration:'HZ-AK02',Status:'Scheduled',IsDeleted:false,CreatedByUser:'rasheed',UpdatedByUser:'rasheed',DeleteReason:''},
+    {ID:3,FlightNo:'SV303',ServiceType:'Originating',FlightDate:'2026-05-20',Airline:'SV',ArrFlightNo:'',DepFlightNo:'SV303',Origin:'MED',Destination:'CAI',SDA:'',SDD:'2026-05-20',ADA:'',ADD:'',STA:'',STD:'1000',ATA:'',ATD:'',ParkingStand:'C05',AircraftType:'A321',AircraftRegistration:'HZ-AK03',Status:'Scheduled',IsDeleted:false,CreatedByUser:'rasheed',UpdatedByUser:'rasheed',DeleteReason:''},
+    {ID:4,FlightNo:'SV404',ServiceType:'Originating',FlightDate:'2026-05-20',Airline:'SV',ArrFlightNo:'',DepFlightNo:'SV404',Origin:'MED',Destination:'DXB',SDA:'',SDD:'2026-05-20',ADA:'',ADD:'',STA:'',STD:'1800',ATA:'',ATD:'1800',ParkingStand:'D08',AircraftType:'B777',AircraftRegistration:'HZ-AK04',Status:'Scheduled',IsDeleted:false,CreatedByUser:'rasheed',UpdatedByUser:'rasheed',DeleteReason:''},
+    {ID:6,FlightNo:'EK801',ServiceType:'TurnAround',FlightDate:'2026-05-20',Airline:'EK',ArrFlightNo:'EK801',DepFlightNo:'EK802',Origin:'DXB',Destination:'DXB',SDA:'2026-05-20',SDD:'2026-05-20',ADA:'',ADD:'',STA:'0500',STD:'0620',ATA:'',ATD:'',ParkingStand:'E11',AircraftType:'A380',AircraftRegistration:'',Status:'Scheduled',IsDeleted:false,CreatedByUser:'khalid',UpdatedByUser:'khalid',DeleteReason:''},
+  ],
+  basementLogs:[],
+  ficLogs:[],
+  auditLogs:[
+    {ID:1,Timestamp:'2026-05-18T05:00:00',Username:'rasheed',DisplayName:'Rasheed',Role:'Duty Manager',Department:'All',ActionType:'Create',TargetType:'Flight',FlightID:1,Details:'Test flights seeded for 2026-05-18'},
+  ],
+  alerts:[],
+  opReports:[],
+  agentReports:[],
+  fmrSyncs:[],
+  scheduleImports:[
+    {ID:1,FileName:'test_seed_2026_05_18.csv',UploadedBy:'system',UploadedAt:'2026-05-18T05:00:00',TotalRows:4,SuccessfulRows:4,FailedRows:0,ImportStatus:'Completed',ErrorSummary:''},
+  ],
+  nextID:{users:6,flights:7,basementLogs:1,ficLogs:1,auditLogs:2,alerts:1,scheduleImports:2,opReports:1,agentReports:1,fmrSyncs:1}
+};
+
+// ============================================================
+// CONFIG — paste your Supabase project credentials here
+// ============================================================
+const SUPABASE_URL = 'https://uolazbccbladznxxxona.supabase.co';        // e.g. https://xxxxx.supabase.co
+const SUPABASE_ANON_KEY = 'sb_publishable_6p8kxNjxth6iQhDMCAK4Dg_NABjZRnW';       // the "anon public" key
+// ============================================================
+
+let sb=null;
+let sbAdmin=null; // separate client for creating other users without affecting current session
+let realtimeChannel=null;
+let isSupabaseConfigured=false;
+try{
+  if(SUPABASE_URL&&!SUPABASE_URL.startsWith('YOUR_')&&SUPABASE_ANON_KEY&&!SUPABASE_ANON_KEY.startsWith('YOUR_')&&window.supabase){
+    sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+    sbAdmin=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+    isSupabaseConfigured=true;
+  }
+}catch(e){console.warn('Supabase init failed, falling back to local storage',e);}
+
+// FIARS usernames map to fake email addresses for Supabase Auth
+function authEmail(username){return username.trim().toLowerCase()+'@fiars.local';}
+
+async function loadDB(){
+  if(isSupabaseConfigured){
+    try{
+      const {data,error}=await sb.from('fiars_state').select('data').eq('id',1).single();
+      if(error) throw error;
+      if(data&&data.data&&Object.keys(data.data).length>0){
+        return data.data;
+      }
+      // Row exists but empty -> seed it
+      const seed=JSON.parse(JSON.stringify(DEFAULT_SEED));
+      const {error: upsertErr}=await sb.from('fiars_state').upsert({id:1,data:seed,updated_by:'system'});
+      if(upsertErr) throw upsertErr;
+      return seed;
+    }catch(e){
+      console.error('SUPABASE LOAD ERROR:',e);
+      lastSupabaseError='LOAD: '+(e.message||JSON.stringify(e));
+    }
+  }
+  // Fallback: browser-local storage (single-user/demo mode)
+  try{
+    const r=await window.storage.get(STORE_KEY);
+    return r?JSON.parse(r.value):JSON.parse(JSON.stringify(DEFAULT_SEED));
+  }catch(e){return JSON.parse(JSON.stringify(DEFAULT_SEED));}
+}
+
+let lastSupabaseError=null;
+
+async function saveDB(){
+  if(isSupabaseConfigured){
+    try{
+      const {error}=await sb.from('fiars_state').upsert({id:1,data:DB,updated_by:S.user?S.user.Username:'system',updated_at:new Date().toISOString()});
+      if(error) throw error;
+      lastSupabaseError=null;
+      return;
+    }catch(e){
+      console.error('SUPABASE SAVE ERROR:',e);
+      lastSupabaseError='SAVE: '+(e.message||JSON.stringify(e));
+      showToast('⚠ Save to shared database failed — see console','te');
+    }
+  }
+  try{await window.storage.set(STORE_KEY,JSON.stringify(DB));}catch(e){}
+}
+
+// Manually re-fetch the latest data from Supabase (used by Refresh button)
+async function refreshFromRemote(){
+  if(!isSupabaseConfigured) return;
+  try{
+    const {data,error}=await sb.from('fiars_state').select('data,updated_at').eq('id',1).single();
+    if(error) throw error;
+    if(data&&data.data&&Object.keys(data.data).length>0){
+      DB=data.data;
+    }
+  }catch(e){console.warn('Manual refresh failed',e);}
+}
+
+// Subscribe to realtime changes from other users/tabs
+function startRealtimeSync(){
+  if(!isSupabaseConfigured||realtimeChannel) return;
+  realtimeChannel=sb.channel('fiars_state_changes')
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'fiars_state',filter:'id=eq.1'},(payload)=>{
+      if(!payload.new||!payload.new.data) return;
+      // Avoid reloading if WE were the ones who just saved
+      if(payload.new.updated_by===S.user?.Username&&Date.now()-lastLocalSaveTime<2000) return;
+      DB=payload.new.data;
+      if(S.loggedIn) render();
+      showToast('Data synced from another user','ti');
+    })
+    .subscribe();
+  // Fallback polling every 15s in case websocket realtime is blocked by network/firewall
+  if(!pollInterval){
+    pollInterval=setInterval(async()=>{
+      if(!S.loggedIn) return;
+      const before=JSON.stringify(DB);
+      await refreshFromRemote();
+      if(JSON.stringify(DB)!==before) render();
+    },15000);
+  }
+}
+let pollInterval=null;
+let lastLocalSaveTime=0;
+const _origSaveDB=saveDB;
+saveDB=async function(){lastLocalSaveTime=Date.now();return _origSaveDB();};
+
+async function resetDB(){
+  DB=JSON.parse(JSON.stringify(DEFAULT_SEED));
+  await saveDB();
+}
+
+let DB=null;
+let S={
+  loggedIn:false,user:null,userRole:'',userDept:'',userID:0,
+  nav:'dashboard',modal:null,
+  selFlight:null,fdTab:'basement',
+  dashDate:new Date().toISOString().slice(0,10),dashStatus:'All',dashSearch:'',dashSearchDraft:undefined,
+  editUser:null,editFlight:null,
+  scheduleStep:1,scheduleOp:'SCHEDULE',scheduleAirline:'SV',scheduleDate:new Date().toISOString().slice(0,10),
+  auditF:{user:'All',action:'All'},
+  alertF:'All',
+  alertHistDate:new Date().toISOString().slice(0,10),alertHistView:false,
+  reportDate:'',reportFlight:'',reportStatus:'All',reportGenerated:false,
+  opReportDate:new Date().toISOString().slice(0,10),opReportShift:'Morning',opReportView:null,
+  agentReportDate:new Date().toISOString().slice(0,10),agentReportShift:'Morning',agentReportSelected:[],agentReportView:null,
+  fmrPreview:null,
+};
+
+function h(tag,attrs={},...ch){
+  const el=document.createElement(tag);
+  for(const[k,v] of Object.entries(attrs)){
+    if(k==='cls') el.className=v;
+    else if(k.startsWith('on')) el.addEventListener(k.slice(2).toLowerCase(),v);
+    else el.setAttribute(k,v);
+  }
+  for(const c of ch){
+    if(c==null||c===false) continue;
+    if(typeof c==='string'||typeof c==='number') el.appendChild(document.createTextNode(c));
+    else if(c instanceof Node) el.appendChild(c);
+  }
+  return el;
+}
+function ht(tag,cls,text){const el=document.createElement(tag);el.className=cls;el.textContent=text;return el;}
+function ic(name,sz=14){const i=document.createElement('i');i.className='ti ti-'+name;i.style.fontSize=sz+'px';i.setAttribute('aria-hidden','true');return i;}
+function bdg(text,c='bgr'){const b=document.createElement('span');b.className='badge '+c;b.textContent=text;return b;}
+function stBdg(s){const m={Scheduled:'bgr','On Time':'bb','Arr Delayed':'ba','Dep Delayed':'ba',Delayed:'ba',Departed:'bg',Arrived:'bg',Cancelled:'br'};return bdg(s,m[s]||'bgr');}
+function compBdg(s){const m={Completed:'bg','In Progress':'ba','Not Started':'bgr'};return bdg(s,m[s]||'bgr');}
+function fmtT(ts){if(!ts)return'—';return ts.includes('T')?ts.slice(11,16):ts;}
+function fmtD(ts){if(!ts)return'—';return ts.slice(0,10);}
+
+function showToast(msg,type='ts'){
+  const wrap=document.getElementById('toasts');
+  const t=document.createElement('div');
+  t.className='toast '+type;t.textContent=msg;
+  wrap.appendChild(t);
+  setTimeout(()=>{if(t.parentNode)t.parentNode.removeChild(t);},3600);
+}
+
+function addAudit(type,targetType,details,flightID=null){
+  const r={ID:DB.nextID.auditLogs++,Timestamp:new Date().toISOString(),Username:S.user?.Username||'',DisplayName:S.user?.DisplayName||'',Role:S.userRole,Department:S.userDept,ActionType:type,TargetType:targetType,FlightID:flightID,Details:details};
+  DB.auditLogs.push(r);
+  // Note: does NOT save here — every caller follows this with an explicit
+  // await saveDB(), so auto-saving here would race two concurrent writes
+  // against each other (this caused the FMR sync "needs multiple clicks" bug).
+}
+
+function canSched(){return S.userRole==='Manager'||S.userRole==='Duty Manager'||S.userRole==='OCC Agent';}
+
+// ── ROLE HIERARCHY (hidden Super Admin) ──────────────────────
+// Super Admin is hardcoded to a specific username, never shown
+// as a selectable role anywhere — keeps the role system simple
+// for everyone else while giving Daddy full control.
+const SUPER_ADMIN_USERNAME='anas';
+function isSuperAdmin(){return !!(S.user&&S.user.Username===SUPER_ADMIN_USERNAME);}
+function displayRole(){return isSuperAdmin()?'Super Admin':S.userRole;}
+
+// Roles the current user is allowed to assign to others
+function manageableRoles(){
+  if(isSuperAdmin()) return ['Manager','Duty Manager','OCC Agent','Agent'];
+  if(S.userRole==='Manager') return ['Duty Manager','OCC Agent','Agent'];
+  if(S.userRole==='Duty Manager') return ['OCC Agent','Agent'];
+  return [];
+}
+// Can the current user edit/deactivate this target user at all?
+function canManageUser(u){
+  if(!u||u.ID===S.userID) return false;
+  if(isSuperAdmin()) return true;
+  if(S.userRole==='Manager') return ['Duty Manager','OCC Agent','Agent'].includes(u.Role);
+  if(S.userRole==='Duty Manager') return ['OCC Agent','Agent'].includes(u.Role);
+  return false;
+}
+// Can the current user change this target user's role?
+function canChangeRoleFor(u){
+  if(!u||u.ID===S.userID) return false;
+  if(isSuperAdmin()) return true;
+  if(S.userRole==='Manager') return ['Duty Manager','OCC Agent','Agent'].includes(u.Role);
+  return false; // Duty Manager cannot change roles
+}
+function canUsers(){return isSuperAdmin()||S.userRole==='Manager'||S.userRole==='Duty Manager';}
+function canAudit(){return S.userRole==='Manager'||S.userRole==='Duty Manager';}
+function canReport(){return S.userRole==='Manager'||S.userRole==='Duty Manager';}
+function canOpReport(){return S.userRole==='Manager'||S.userRole==='Duty Manager';}
+function canBasement(){return S.userRole==='Manager'||S.userRole==='Duty Manager'||(S.userRole==='Agent'&&S.userDept==='Basement/LC');}
+function canFIC(){return S.userRole==='Manager'||S.userRole==='Duty Manager'||(S.userRole==='Agent'&&S.userDept==='FIC/Ramp');}
+function getBL(fid){return DB.basementLogs.find(l=>l.FlightID===fid)||null;}
+function getFIC(fid){return DB.ficLogs.find(l=>l.FlightID===fid)||null;}
+function getComp(f){const bl=getBL(f.ID);const fi=getFIC(f.ID);return{b:bl?.CompletionStatus||'Not Started',f:fi?.CompletionStatus||'Not Started'};}
+// ── ALERT ENGINE ────────────────────────────────────────────
+function nowHHMM(){const n=new Date();return n.getHours().toString().padStart(2,'0')+n.getMinutes().toString().padStart(2,'0');}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function minsDiff(hhmm1,hhmm2){// hhmm2 - hhmm1 in minutes
+  const toMins=s=>{if(!s||s.length<4)return null;return parseInt(s.slice(0,2))*60+parseInt(s.slice(2,4));};
+  const a=toMins(hhmm1),b=toMins(hhmm2);if(a===null||b===null)return null;return b-a;}
+function minsUntil(hhmm){return minsDiff(nowHHMM(),hhmm);}// positive = future, negative = past
+
+function generateAlerts(){
+  if(!DB||!DB.flights) return;
+  const today=todayStr();
+  const now=nowHHMM();
+  const flights=DB.flights.filter(f=>!f.IsDeleted&&f.FlightDate===today);
+  const bl_map={},fic_map={};
+  (DB.basementLogs||[]).forEach(l=>bl_map[l.FlightID]=l);
+  (DB.ficLogs||[]).forEach(l=>fic_map[l.FlightID]=l);
+
+  flights.forEach(f=>{
+    const bl=bl_map[f.ID]||{};
+    const fic=fic_map[f.ID]||{};
+    const st=getServiceType(f);
+    const hasArr=st==='Terminating'||st==='TurnAround';
+    const hasDep=st==='Originating'||st==='TurnAround';
+
+    function fireAlert(key,title,msg,dept,priority){
+      // Check if alert already exists for this key+flight
+      const existing=DB.alerts.find(a=>a.AlertKey===key&&a.FlightID===f.ID);
+      if(existing){
+        // Auto-dismiss if condition is now resolved
+        if(existing.AutoDismissed===false||existing.IsDismissed) return;
+        return;
+      }
+      // Create new alert
+      const al={
+        ID:DB.nextID.alerts++,
+        AlertKey:key,
+        FlightID:f.ID,
+        AlertTitle:title,
+        AlertMessage:msg,
+        Department:dept,
+        Priority:priority,
+        FiredAt:new Date().toISOString(),
+        FiredDate:today,
+        IsDismissed:false,
+        AutoDismissed:false,
+        DismissedBy:'',
+        DismissedAt:'',
+        Status:'Active'
+      };
+      DB.alerts.push(al);
+      saveDB();
+    }
+
+    function autoDismiss(key,resolved){
+      const al=DB.alerts.find(a=>a.AlertKey===key&&a.FlightID===f.ID&&!a.IsDismissed&&!a.AutoDismissed);
+      if(al&&resolved){al.IsDismissed=true;al.AutoDismissed=true;al.DismissedBy='system';al.DismissedAt=new Date().toISOString();al.Status='Auto-Resolved';saveDB();}
+    }
+
+    // ── ATA — 15min and 30min after STA ─────────────────
+    if(hasArr&&f.STA){
+      const minsAfterSTA=minsUntil(f.STA)!==null?-minsUntil(f.STA):null;
+      autoDismiss('ATA_15',!!f.ATA);
+      autoDismiss('ATA_30',!!f.ATA);
+      if(!f.ATA&&minsAfterSTA!==null){
+        if(minsAfterSTA>=15&&minsAfterSTA<30) fireAlert('ATA_15','ATA Not Updated — '+f.FlightNo,f.FlightNo+' STA was '+f.STA+'. ATA not recorded (15 min passed).','FIC/Ramp','High');
+        if(minsAfterSTA>=30) fireAlert('ATA_30','ATA Overdue — '+f.FlightNo,f.FlightNo+' STA was '+f.STA+'. ATA still missing (30+ min).','FIC/Ramp','Critical');
+      }
+    }
+
+    // ── ATD — 15min and 30min after STD ─────────────────
+    if(hasDep&&f.STD){
+      const minsAfterSTD=minsUntil(f.STD)!==null?-minsUntil(f.STD):null;
+      autoDismiss('ATD_15',!!f.ATD);
+      autoDismiss('ATD_30',!!f.ATD);
+      if(!f.ATD&&minsAfterSTD!==null){
+        if(minsAfterSTD>=15&&minsAfterSTD<30) fireAlert('ATD_15','ATD Not Updated — '+f.FlightNo,f.FlightNo+' STD was '+f.STD+'. ATD not recorded (15 min passed).','FIC/Ramp','High');
+        if(minsAfterSTD>=30) fireAlert('ATD_30','ATD Overdue — '+f.FlightNo,f.FlightNo+' STD was '+f.STD+'. ATD still missing (30+ min).','FIC/Ramp','Critical');
+      }
+    }
+
+    // ── Parking Stand — 3hrs before STA (Terminating) ───
+    if(hasArr&&!hasDep&&f.STA){
+      const minsUntilSTA=minsUntil(f.STA);
+      autoDismiss('STAND_ARR',!!f.ParkingStand);
+      if(!f.ParkingStand&&minsUntilSTA!==null&&minsUntilSTA<=180&&minsUntilSTA>=0)
+        fireAlert('STAND_ARR','Stand Not Allocated — '+f.FlightNo,f.FlightNo+' arrives at '+f.STA+'. Parking stand not allocated (within 3hrs).','FIC/Ramp','High');
+    }
+
+    // ── Parking Stand — 3hrs before STD (Originating/TA) ─
+    if(hasDep&&f.STD){
+      const minsUntilSTD=minsUntil(f.STD);
+      autoDismiss('STAND_DEP',!!f.ParkingStand);
+      if(!f.ParkingStand&&minsUntilSTD!==null&&minsUntilSTD<=180&&minsUntilSTD>=0)
+        fireAlert('STAND_DEP','Stand Not Allocated — '+f.FlightNo,f.FlightNo+' departs at '+f.STD+'. Parking stand not allocated (within 3hrs).','FIC/Ramp','High');
+    }
+
+    // ── Arr MVT — 5mins after ATA ────────────────────────
+    if(hasArr&&f.ATA){
+      const minsAfterATA=-minsUntil(f.ATA);
+      autoDismiss('ARR_MVT',!!bl.ArrMVTSent);
+      if(!bl.ArrMVTSent&&minsAfterATA!==null&&minsAfterATA>=5)
+        fireAlert('ARR_MVT','Arr MVT Not Sent — '+f.FlightNo,f.FlightNo+' ATA was '+f.ATA+'. Arrival MVT not sent (5+ min after ATA).','Basement/LC','High');
+    }
+
+    // ── Dep MVT — 5mins after ATD ────────────────────────
+    if(hasDep&&f.ATD){
+      const minsAfterATD=-minsUntil(f.ATD);
+      autoDismiss('DEP_MVT',!!bl.DepMVTSent);
+      if(!bl.DepMVTSent&&minsAfterATD!==null&&minsAfterATD>=5)
+        fireAlert('DEP_MVT','Dep MVT Not Sent — '+f.FlightNo,f.FlightNo+' ATD was '+f.ATD+'. Departure MVT not sent (5+ min after ATD).','Basement/LC','High');
+    }
+
+    // ── Pre-flight Briefing — 4hrs before STD ───────────
+    if(hasDep&&f.STD){
+      const mu=minsUntil(f.STD);
+      autoDismiss('PREFLIGHT',!!bl.PreFlightBriefingCheck);
+      if(!bl.PreFlightBriefingCheck&&mu!==null&&mu<=240&&mu>=0)
+        fireAlert('PREFLIGHT','Pre-flight Briefing Overdue — '+f.FlightNo,f.FlightNo+' STD '+f.STD+'. Pre-flight briefing not done (within 4hrs).','Basement/LC','High');
+    }
+
+    // ── EZFW — 4hrs before STD ───────────────────────────
+    if(hasDep&&f.STD){
+      const mu=minsUntil(f.STD);
+      autoDismiss('EZFW',!!bl.EZFWSent);
+      if(!bl.EZFWSent&&mu!==null&&mu<=240&&mu>=0)
+        fireAlert('EZFW','EZFW Not Sent — '+f.FlightNo,f.FlightNo+' STD '+f.STD+'. EZFW not sent (within 4hrs of STD).','Basement/LC','High');
+    }
+
+    // ── Plan to Basement — 4hrs before STD ──────────────
+    if(hasDep&&f.STD){
+      const mu=minsUntil(f.STD);
+      autoDismiss('PLAN_BAS',!!bl.PlanSentToBasement);
+      if(!bl.PlanSentToBasement&&mu!==null&&mu<=240&&mu>=0)
+        fireAlert('PLAN_BAS','Plan Not Sent to Basement — '+f.FlightNo,f.FlightNo+' STD '+f.STD+'. Plan not sent to basement (within 4hrs).','Basement/LC','High');
+    }
+
+    // ── LIR Release — 1:30 before STD ───────────────────
+    if(hasDep&&f.STD){
+      const mu=minsUntil(f.STD);
+      autoDismiss('LIR',!!bl.LIRReleaseCheck);
+      if(!bl.LIRReleaseCheck&&mu!==null&&mu<=90&&mu>=0)
+        fireAlert('LIR','LIR Not Released — '+f.FlightNo,f.FlightNo+' STD '+f.STD+'. LIR not released (within 1:30).','Basement/LC','High');
+    }
+
+    // ── LC Release — 0:15 before STD ────────────────────
+    if(hasDep&&f.STD){
+      const mu=minsUntil(f.STD);
+      autoDismiss('LC_REL',!!bl.LCReleaseCheck);
+      if(!bl.LCReleaseCheck&&mu!==null&&mu<=15&&mu>=0)
+        fireAlert('LC_REL','LC Not Released — '+f.FlightNo,f.FlightNo+' STD '+f.STD+'. LC not released (within 15min).','Basement/LC','Critical');
+    }
+
+    // ── No-Show with Basement — 0:20 before STD ─────────
+    if(hasDep&&f.STD){
+      const mu=minsUntil(f.STD);
+      autoDismiss('NOSHOW_BAS',!!fic.NoShowCheckedWithBasement);
+      if(!fic.NoShowCheckedWithBasement&&mu!==null&&mu<=20&&mu>=0)
+        fireAlert('NOSHOW_BAS','No-Show Not Checked (Basement) — '+f.FlightNo,f.FlightNo+' STD '+f.STD+'. No-show not checked with basement (within 20min).','FIC/Ramp','High');
+    }
+
+    // ── No-Show with TRC — 0:10 before STD ──────────────
+    if(hasDep&&f.STD){
+      const mu=minsUntil(f.STD);
+      autoDismiss('NOSHOW_TRC',!!fic.NoShowCheckedWithTRC);
+      if(!fic.NoShowCheckedWithTRC&&mu!==null&&mu<=10&&mu>=0)
+        fireAlert('NOSHOW_TRC','No-Show Not Checked (TRC) — '+f.FlightNo,f.FlightNo+' STD '+f.STD+'. No-show not checked with TRC (within 10min).','FIC/Ramp','Critical');
+    }
+  });
+}
+
+function activeAlerts(){
+  generateAlerts();
+  return DB.alerts.filter(a=>!a.IsDismissed&&(a.Department===S.userDept||S.userDept==='All'||S.userRole!=='Agent'));
+}
+
+function render(){
+  const root=document.getElementById('app');
+  root.innerHTML='';
+  if(!S.loggedIn){root.appendChild(renderLogin());return;}
+  const app=document.createElement('div');
+  app.id='app-inner';app.style.display='flex';app.style.flexDirection='column';app.style.minHeight='600px';
+  app.appendChild(renderTopbar());
+  const body=h('div',{id:'main'});
+  body.appendChild(renderSidebar());
+  const content=h('div',{id:'content'});
+  if(S.nav==='dashboard') content.appendChild(renderDash());
+  else if(S.nav==='schedule') content.appendChild(renderSchedule());
+  else if(S.nav==='alerts') content.appendChild(renderAlerts());
+  else if(S.nav==='reports') content.appendChild(renderReports());
+  else if(S.nav==='opreport') content.appendChild(renderOpReport());
+  else if(S.nav==='agentreport') content.appendChild(renderAgentReport());
+  else if(S.nav==='users') content.appendChild(renderUsers());
+  else if(S.nav==='myaccount') content.appendChild(renderMyAccount());
+  else if(S.nav==='audit') content.appendChild(renderAudit());
+  body.appendChild(content);
+  app.appendChild(body);
+  if(S.modal) app.appendChild(renderModal());
+  root.appendChild(app);
+}
+
+function renderTopbar(){
+  const tb=h('div',{id:'topbar'});
+  tb.appendChild(h('div',{cls:'logo'},'✈ FIARS'));
+  tb.appendChild(ht('span','mut xs','Airport Operations'));
+  // Connection status indicator
+  const connOk=isSupabaseConfigured&&!lastSupabaseError;
+  const connDot=h('span',{style:`width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:8px;background:${connOk?'#22c55e':isSupabaseConfigured?'#dc2626':'#f59e0b'}`});
+  const connLabel=ht('span','mut xs',connOk?'Live (shared)':isSupabaseConfigured?('Sync error — '+lastSupabaseError):'Local only — Supabase not configured');
+  connLabel.style.marginLeft='4px';connLabel.title=lastSupabaseError||'';
+  tb.appendChild(connDot);tb.appendChild(connLabel);
+  tb.appendChild(h('div',{cls:'spacer'}));
+  const alCnt=activeAlerts().length;
+  if(alCnt>0){
+    const ab=h('button',{cls:'btn btn-sm',style:'background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.2);margin-right:8px;font-size:12px',onClick:()=>{S.nav='alerts';render();}},ic('bell',13),` ${alCnt} alert${alCnt>1?'s':''}`);
+    tb.appendChild(ab);
+  }
+  const chip=h('div',{cls:'user-chip'});chip.appendChild(ic('user',12));chip.appendChild(document.createTextNode(S.user.DisplayName));chip.appendChild(bdg(displayRole(),isSuperAdmin()?'br':'bb'));tb.appendChild(chip);
+  const so=h('button',{cls:'btn btn-sm',style:'margin-left:8px;background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);font-size:12px',onClick:async()=>{addAudit('SignOut','','User signed out');await saveDB();if(isSupabaseConfigured)await sb.auth.signOut();S.loggedIn=false;S.user=null;S.userRole='';S.userDept='';S.userID=0;render();}},ic('logout',13),' Sign out');
+  tb.appendChild(so);
+  return tb;
+}
+
+function renderSidebar(){
+  const sb=h('div',{id:'sidebar'});
+  const items=[{id:'dashboard',icon:'layout-dashboard',lbl:'Dashboard'},{id:'schedule',icon:'calendar-event',lbl:'Schedule'},{id:'alerts',icon:'bell',lbl:'Alerts',cnt:activeAlerts().length}];
+  items.forEach(item=>{
+    const el=h('div',{cls:'nav-i'+(S.nav===item.id?' active':''),onClick:()=>{S.nav=item.id;render();}},ic(item.icon,15),item.lbl);
+    if(item.cnt>0){const b=h('span',{style:'background:rgba(255,255,255,.22);border-radius:9px;padding:1px 7px;font-size:10px;margin-left:auto'},String(item.cnt));el.appendChild(b);}
+    sb.appendChild(el);
+  });
+  // Agent report — visible to agents only
+  if(S.userRole==='Agent'){
+    sb.appendChild(h('hr',{style:'border:none;border-top:1px solid rgba(255,255,255,.08);margin:6px 12px'}));
+    sb.appendChild(ht('div','nav-sec','My Reports'));
+    const el=h('div',{cls:'nav-i'+(S.nav==='agentreport'?' active':''),onClick:()=>{S.nav='agentreport';render();}},ic('clipboard-text',15),'Shift Report');
+    sb.appendChild(el);
+  }
+  if(canUsers()||canAudit()||canReport()||canOpReport()){
+    sb.appendChild(h('hr',{style:'border:none;border-top:1px solid rgba(255,255,255,.08);margin:6px 12px'}));
+    sb.appendChild(ht('div','nav-sec','Management'));
+    if(canReport()){const el=h('div',{cls:'nav-i'+(S.nav==='reports'?' active':''),onClick:()=>{S.nav='reports';render();}},ic('chart-bar',15),'Entries Report');sb.appendChild(el);}
+    if(canOpReport()){const el=h('div',{cls:'nav-i'+(S.nav==='opreport'?' active':''),onClick:()=>{S.nav='opreport';render();}},ic('clipboard-text',15),'Operational Report');sb.appendChild(el);}
+    if(canUsers()){const el=h('div',{cls:'nav-i'+(S.nav==='users'?' active':''),onClick:()=>{S.nav='users';render();}},ic('users',15),'Users');sb.appendChild(el);}
+    if(canAudit()){const el=h('div',{cls:'nav-i'+(S.nav==='audit'?' active':''),onClick:()=>{S.nav='audit';render();}},ic('file-description',15),'Audit Log');sb.appendChild(el);}
+  }
+  sb.appendChild(h('hr',{style:'border:none;border-top:1px solid rgba(255,255,255,.08);margin:6px 12px'}));
+  const myAcctEl=h('div',{cls:'nav-i'+(S.nav==='myaccount'?' active':''),onClick:()=>{S.nav='myaccount';render();}},ic('user-circle',15),'My Account');
+  sb.appendChild(myAcctEl);
+  const btm=h('div',{cls:'sb-btm'});btm.appendChild(ht('div','xs bld',S.user.DisplayName));btm.appendChild(ht('div','xs mut',S.userDept));sb.appendChild(btm);
+  return sb;
+}
+
+function renderLogin(){
+  const wrap=h('div',{id:'login-wrap'});
+  const card=h('div',{cls:'lcard'});
+  const logo=h('div',{cls:'llogo'});logo.appendChild(h('div',{cls:'plane'},'✈'));logo.appendChild(h('h1',{},'FIARS'));logo.appendChild(h('p',{},'Flight Information & Activity Reporting'));
+  card.appendChild(logo);
+  if(isSupabaseConfigured){
+    const sb2=h('div',{cls:'stor-bar'});sb2.appendChild(ic('database',13));sb2.appendChild(document.createTextNode('Connected to shared database — secure sign-in'));card.appendChild(sb2);
+  } else {
+    const nb=h('div',{cls:'notebox'},'⚠ Local mode — Supabase not configured. Data is per-browser only.');card.appendChild(nb);
+  }
+  const errDiv=h('div',{cls:'lerr',style:'display:none'});card.appendChild(errDiv);
+  const uRow=h('div',{cls:'fr'});uRow.appendChild(ht('label','fl','Username'));const uInp=h('input',{type:'text',cls:'fc',placeholder:'Enter username',autocomplete:'off'});uRow.appendChild(uInp);card.appendChild(uRow);
+  const pRow=h('div',{cls:'fr'});pRow.appendChild(ht('label','fl','Password'));const pInp=h('input',{type:'password',cls:'fc',placeholder:'Enter password'});pRow.appendChild(pInp);card.appendChild(pRow);
+  const btn=h('button',{cls:'btn bp w100',style:'justify-content:center;padding:9px;margin-top:4px',onClick:async()=>{
+    const u=uInp.value.trim().toLowerCase(),p=pInp.value;
+    if(!u||!p){errDiv.textContent='Enter username and password.';errDiv.style.display='block';return;}
+    errDiv.style.display='none';btn.disabled=true;btn.textContent='Signing in...';
+
+    if(isSupabaseConfigured){
+      const {data,error}=await sb.auth.signInWithPassword({email:authEmail(u),password:p});
+      if(error){
+        // BOOTSTRAP FALLBACK: if this user hasn't been provisioned to
+        // Supabase Auth yet, allow a one-time legacy login using the
+        // plain-text password stored in DB.users so they can access
+        // the Users page and provision accounts. Once AuthProvisioned
+        // is true for everyone, this path becomes unreachable (and is
+        // fully removed once supabase_auth_rls.sql is run).
+        try{
+          const checkDB=await loadDB();
+          const legacyUser=checkDB.users.find(x=>x.Username===u&&x.Password===p&&x.IsActive&&!x.AuthProvisioned);
+          if(legacyUser){
+            DB=checkDB;
+            S.user=legacyUser;S.userRole=legacyUser.Role;S.userDept=legacyUser.Department;S.userID=legacyUser.ID;S.loggedIn=true;S.nav='users';
+            addAudit('Login','','Bootstrap login (account not yet provisioned)');
+            showToast('⚠ Account not linked to secure auth yet — go to Users to provision it','ti');
+            await saveDB();render();return;
+          }
+        }catch(e){/* ignore, fall through to error below */}
+        btn.disabled=false;btn.textContent='Sign In';
+        errDiv.textContent='Invalid username or password.';errDiv.style.display='block';
+        return;
+      }
+      // Load shared DB now that we're authenticated
+      DB=await loadDB();
+      const found=DB.users.find(x=>x.Username===u&&x.IsActive);
+      if(!found){
+        errDiv.textContent='Account not set up. Contact your administrator.';errDiv.style.display='block';
+        btn.disabled=false;btn.textContent='Sign In';
+        await sb.auth.signOut();
+        return;
+      }
+      S.user=found;S.userRole=found.Role;S.userDept=found.Department;S.userID=found.ID;S.loggedIn=true;S.nav='dashboard';
+      addAudit('Login','','Successful login');await saveDB();startRealtimeSync();render();
+    } else {
+      // Local-only fallback: legacy plain-text check
+      if(!DB) DB=await loadDB();
+      const found=DB.users.find(x=>x.Username===u&&x.Password===p&&x.IsActive);
+      if(!found){
+        btn.disabled=false;btn.textContent='Sign In';
+        addAudit('LoginFailed','','Failed login: '+u);
+        errDiv.textContent='Invalid username or password.';errDiv.style.display='block';
+      } else {
+        S.user=found;S.userRole=found.Role;S.userDept=found.Department;S.userID=found.ID;S.loggedIn=true;S.nav='dashboard';
+        addAudit('Login','','Successful login');render();
+      }
+    }
+  }},'Sign In');
+  pInp.addEventListener('keydown',e=>{if(e.key==='Enter')btn.click();});
+  card.appendChild(btn);
+  if(!isSupabaseConfigured){
+    const hints=h('div',{style:'margin-top:14px;border-top:1px solid #e5e7eb;padding-top:11px'});
+    hints.appendChild(ht('div','xs mut mb1','Demo accounts — click to fill:'));
+    [['islam','Manager'],['rasheed','Duty Manager'],['khalid','OCC Agent'],['anas','FIC/Ramp Agent'],['feras','Basement Agent']].forEach(([u,r])=>{
+      const row=h('div',{style:'display:flex;justify-content:space-between;margin-top:3px'});
+      const lnk=ht('span','xs',u+' / 123456');lnk.style.cssText='cursor:pointer;color:#2563eb;text-decoration:underline';
+      lnk.onclick=()=>{uInp.value=u;pInp.value='123456';};
+      row.appendChild(lnk);row.appendChild(ht('span','xs mut',r));hints.appendChild(row);
+    });
+    card.appendChild(hints);
+  } else {
+    const note=h('div',{style:'margin-top:14px;border-top:1px solid #e5e7eb;padding-top:11px'});
+    note.appendChild(ht('div','xs mut','First time? Ask your Manager to set up your account in Users.'));
+    card.appendChild(note);
+  }
+  wrap.appendChild(card);
+  return wrap;
+}
+
+function getServiceType(f){
+  if(f.ServiceType) return f.ServiceType;
+  if(f.STA&&f.STD) return 'TurnAround';
+  if(f.STA) return 'Terminating';
+  return 'Originating';
+}
+
+function getDashRowColor(f){
+  const s=computeAutoStatus(f);
+  if(f.Status==='Arrived'||f.Status==='Departed') return '#d4edda'; // green
+  if(f.Status==='Cancelled') return '#f5c6cb';                      // pink/red
+  if(s==='Arr Delayed'||s==='Dep Delayed') return '#fff3cd';        // yellow
+  if(f.ATA||f.ATD) return '#fce8c3';                               // orange/operated
+  return '';                                                         // white/scheduled
+}
+
+function renderDash(){
+  const wrap=h('div',{});
+
+  // Auto-update statuses
+  const flights=DB.flights.filter(f=>!f.IsDeleted&&f.FlightDate===S.dashDate);
+  flights.forEach(f=>{
+    const autoStatus=computeAutoStatus(f);
+    if(autoStatus!==f.Status&&(autoStatus==='Dep Delayed'||autoStatus==='Arr Delayed'||autoStatus==='On Time')){
+      const fl=DB.flights.find(x=>x.ID===f.ID);
+      if(fl&&fl.Status!=='Departed'&&fl.Status!=='Arrived'&&fl.Status!=='Cancelled'){fl.Status=autoStatus;f.Status=autoStatus;saveDB();}
+    }
+  });
+
+  // ── Top bar ─────────────────────────────────────────────
+  const topBar=h('div',{style:'display:flex;align-items:center;gap:16px;margin-bottom:12px;flex-wrap:wrap'});
+  // Date picker
+  const dpWrap=h('div',{cls:'flex ic g2x'});
+  dpWrap.appendChild(ht('span','xs mut bld','Select Flight Date'));
+  const di=h('input',{type:'date',cls:'fc',style:'width:148px',value:S.dashDate,onChange:e=>{S.dashDate=e.target.value;render();}});
+  dpWrap.appendChild(di);topBar.appendChild(dpWrap);
+
+  // Color legend
+  const leg=h('div',{style:'display:flex;align-items:center;gap:10px;flex-wrap:wrap'});
+  [['#d4edda','ARRIVED'],['#f5c6cb','CANCELLED'],['#fff3cd','DELAYED'],['#fce8c3','OPERATED'],['#ffffff','SCHEDULED']].forEach(([bg,lbl])=>{
+    const item=h('div',{style:'display:flex;align-items:center;gap:5px'});
+    const box=h('div',{style:`width:18px;height:18px;background:${bg};border:1px solid #aaa;border-radius:3px;flex-shrink:0`});
+    item.appendChild(box);item.appendChild(ht('span','xs bld',lbl));leg.appendChild(item);
+  });
+  topBar.appendChild(leg);
+
+  // Search + Auto-refresh
+  const rightBar=h('div',{cls:'flex ic g2x',style:'margin-left:auto'});
+  const si=h('input',{type:'text',cls:'fc',placeholder:'Search...',style:'width:160px',value:S.dashSearchDraft!==undefined?S.dashSearchDraft:(S.dashSearch||'')});
+  si.oninput=e=>{S.dashSearchDraft=e.target.value;}; // typed value only — no re-render, keeps focus
+  si.addEventListener('keydown',e=>{if(e.key==='Enter'){S.dashSearch=si.value;S.dashSearchDraft=undefined;render();}});
+  rightBar.appendChild(si);
+  const searchBtn=h('button',{cls:'btn btn-sm',onClick:()=>{S.dashSearch=si.value;S.dashSearchDraft=undefined;render();}},ic('search',13));
+  rightBar.appendChild(searchBtn);
+  if(S.dashSearch){
+    const clearBtn=h('button',{cls:'btn btn-sm',onClick:()=>{S.dashSearch='';S.dashSearchDraft='';render();}},ic('x',13));
+    rightBar.appendChild(clearBtn);
+  }
+  const rfBtn=h('button',{cls:'btn',onClick:async()=>{rfBtn.disabled=true;rfBtn.textContent='Refreshing...';await refreshFromRemote();render();}},ic('refresh',13),' Refresh');
+  rightBar.appendChild(rfBtn);
+  topBar.appendChild(rightBar);
+  wrap.appendChild(topBar);
+
+  // ── Filter flights ───────────────────────────────────────
+  let filtered=flights.filter(f=>{
+    if(S.dashSearch){const q=S.dashSearch.toLowerCase();if(!f.FlightNo.toLowerCase().includes(q)&&!(f.Airline||'').toLowerCase().includes(q)&&!(f.Origin||'').toLowerCase().includes(q)&&!(f.Destination||'').toLowerCase().includes(q)&&!(f.ArrFlightNo||'').toLowerCase().includes(q)&&!(f.DepFlightNo||'').toLowerCase().includes(q)) return false;}
+    return true;
+  }).sort((a,b)=>(a.STA||a.STD||'').localeCompare(b.STA||b.STD||''));
+
+  // ── Table ────────────────────────────────────────────────
+  const tableWrap=h('div',{style:'overflow-x:auto;border-radius:10px;border:1px solid #d1daea;background:#fff'});
+  const tbl=h('table',{style:'width:100%;border-collapse:collapse;font-size:12px;min-width:1100px'});
+
+  // Header
+  const thr=h('tr',{style:'background:#0f2850;color:#fff'});
+  ['A/L','Arr.FltNo','Reg.','Aircraft','Parking','STA','ETA','ATA','Origin','PAX','Dest','Belt','Dep.FltNo','Dep.Reg','STD','ETD','ATD','Operation','Flight Type'].forEach(c=>{
+    const th=h('th',{style:'padding:8px 10px;text-align:left;font-size:11px;font-weight:600;white-space:nowrap;position:sticky;top:0;background:#0f2850'},c);
+    thr.appendChild(th);
+  });
+  tbl.appendChild(h('thead',{},thr));
+
+  const tbody=h('tbody',{});
+
+  if(!filtered.length){
+    const tr=h('tr',{});
+    const td=h('td',{colspan:'19',style:'text-align:center;padding:40px;color:#5a6a8a'});
+    td.appendChild(ic('plane-off',24));td.appendChild(ht('span','xs mut',' No flights for this date.'));
+    tr.appendChild(td);tbody.appendChild(tr);
+  }
+
+  filtered.forEach((f,i)=>{
+    const rowBg=getDashRowColor(f);
+    const tr=h('tr',{style:`background:${rowBg||( i%2===0?'#fff':'#f8faff')};cursor:pointer;transition:filter .1s`});
+    tr.addEventListener('dblclick',()=>{S.selFlight=f;S.fdTab='basement';S.modal='fd';render();});
+    tr.addEventListener('mouseenter',()=>{tr.style.filter='brightness(0.93)';});
+    tr.addEventListener('mouseleave',()=>{tr.style.filter='';});
+
+    const st=getServiceType(f);
+    const isTurn=st==='TurnAround';
+    const isOri=st==='Originating';
+    const autoSt=computeAutoStatus(f);
+
+    const cell=(val,opts={})=>{
+      const td=h('td',{style:`padding:7px 10px;border-bottom:1px solid #e5e7eb;white-space:nowrap;${opts.style||''}`});
+      if(opts.bold) td.style.fontWeight='700';
+      td.textContent=val||'—';
+      return td;
+    };
+
+    // A/L
+    const alTd=h('td',{style:'padding:7px 10px;border-bottom:1px solid #e5e7eb;font-weight:700;color:#0f2850'});alTd.textContent=f.Airline||'—';tr.appendChild(alTd);
+    // Arr FltNo
+    tr.appendChild(cell(!isOri?(f.ArrFlightNo||f.FlightNo):'—'));
+    // Reg
+    tr.appendChild(cell(f.AircraftRegistration||'—'));
+    // Aircraft
+    tr.appendChild(cell(f.AircraftType||'—'));
+    // Parking
+    const pkTd=h('td',{style:'padding:7px 10px;border-bottom:1px solid #e5e7eb;font-weight:600'});pkTd.textContent=f.ParkingStand||'—';tr.appendChild(pkTd);
+    // STA
+    tr.appendChild(cell(!isOri?f.STA:'—'));
+    // ETA — blank for now (not stored)
+    tr.appendChild(cell('—'));
+    // ATA — highlight if delayed
+    const ataTd=h('td',{style:`padding:7px 10px;border-bottom:1px solid #e5e7eb;font-weight:600;color:${f.ATA&&f.STA&&f.ATA>f.STA?'#dc2626':'inherit'}`});
+    ataTd.textContent=f.ATA||'—';tr.appendChild(ataTd);
+    // Origin
+    tr.appendChild(cell(f.Origin||'—',{bold:true}));
+    // PAX — blank
+    tr.appendChild(cell('—'));
+    // Dest
+    tr.appendChild(cell(f.Destination||'—',{bold:true}));
+    // Belt
+    const bl=getBL(f.ID)||{};
+    tr.appendChild(cell(bl.ArrivalBaggageBeltNo||bl.DepBeltNo||'—'));
+    // Dep FltNo
+    tr.appendChild(cell(!isTurn&&!isOri?'—':(f.DepFlightNo||f.FlightNo)));
+    // Dep Reg
+    tr.appendChild(cell(f.AircraftRegistration||'—'));
+    // STD
+    tr.appendChild(cell(!isTurn&&st==='Terminating'?'—':f.STD||'—'));
+    // ETD
+    tr.appendChild(cell('—'));
+    // ATD — highlight if delayed
+    const atdTd=h('td',{style:`padding:7px 10px;border-bottom:1px solid #e5e7eb;font-weight:600;color:${f.ATD&&f.STD&&f.ATD>f.STD?'#dc2626':'inherit'}`});
+    atdTd.textContent=f.ATD||'—';tr.appendChild(atdTd);
+    // Operation
+    tr.appendChild(cell(f.OperationType||'SKD'));
+    // Flight Type
+    const ftTd=h('td',{style:'padding:7px 10px;border-bottom:1px solid #e5e7eb'});
+    const ftColors={Terminating:'#1d4ed8',Originating:'#15803d',TurnAround:'#b45309'};
+    ftTd.style.color=ftColors[st]||'#1a2540';ftTd.style.fontWeight='600';
+    ftTd.textContent=st;tr.appendChild(ftTd);
+
+    tbody.appendChild(tr);
+  });
+
+  tbl.appendChild(tbody);tableWrap.appendChild(tbl);
+
+  // Row count + double-click hint
+  const hint=ht('div','xs mut',filtered.length+' flight(s) · Double-click a row to open');
+  hint.style.cssText='margin-top:6px;text-align:right';
+  wrap.appendChild(tableWrap);
+  wrap.appendChild(hint);
+  return wrap;
+}
+
+// ════════════════════════════════════════════════════════════
+// FMR XML SYNC ENGINE
+// Parses FS-FMR-DATESOPAL XML exports and syncs flight data.
+// Sync key = Airline + FlightNo + Date, so repeated syncs of
+// the same flight UPDATE it instead of duplicating.
+// ════════════════════════════════════════════════════════════
+
+function fmrTimeToHHMM(t){ // "09:05" -> "0905"
+  if(!t) return '';
+  return t.replace(':','').trim();
+}
+function fmrDateToISO(d){ // "6/15/2026" -> "2026-06-15"
+  if(!d) return '';
+  const p=d.trim().split('/');
+  if(p.length!==3) return '';
+  return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');
+}
+function fmrOpTypeMap(ot1){
+  const v=(ot1||'').trim().toUpperCase();
+  if(v==='SKD'||v==='SCHEDULE'||v==='SCHEDULE EXTRA') return 'SKD';
+  if(v.includes('HAJ')) return 'HAJ';
+  if(v.includes('FREIGHT')) return 'FREIGHTER';
+  if(v.includes('CARGO')) return 'CARGO';
+  return v?v:'Other';
+}
+function fmrSyncKey(airline,flightNo,date){
+  return (airline||'').trim().toUpperCase()+'-'+(flightNo||'').trim()+'-'+(date||'').trim();
+}
+
+// Parse the raw FMR XML text into an array of normalized record objects
+function parseFMRXML(xmlText){
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(xmlText,'text/xml');
+  const perr=doc.querySelector('parsererror');
+  if(perr) throw new Error('Invalid XML format');
+  const details=Array.from(doc.getElementsByTagName('Detail'));
+  if(!details.length) throw new Error('No flight records found in this file');
+  return details.map(d=>{
+    const get=(attr)=>d.getAttribute(attr)||'';
+    return {
+      airline:get('AirlineCode'),
+      arrFlightNo:get('ArrivalFlightNumber'),
+      depFlightNo:get('DepartureFlightNumber'),
+      reg:get('DAircraftRegistration'),
+      acType:get('AircraftType'),
+      origin:get('Origin1'),
+      dest:get('Destination1'),
+      sta:fmrTimeToHHMM(get('STA')),
+      std:fmrTimeToHHMM(get('STD')),
+      date:fmrDateToISO(get('SDA')),
+      parking:get('AircraftParkingColumn').trim(),
+      opType:fmrOpTypeMap(get('OperationType1')),
+      arrStatus:get('ArrivalStatus'),
+      depStatus:get('DepartureStatus'),
+    };
+  }).filter(r=>r.airline&&(r.arrFlightNo||r.depFlightNo)&&r.date); // skip empty placeholder rows
+}
+
+// Decide ServiceType per business rule:
+// - XY: always split into separate Terminating (arrival) and Originating (departure) flights
+// - All other airlines: if record has BOTH arr+dep -> TurnAround; otherwise single-leg Terminating/Originating
+function recordsToFlightDrafts(records){
+  const drafts=[];
+  records.forEach(r=>{
+    if(r.airline.toUpperCase()==='XY'){
+      if(r.arrFlightNo){
+        drafts.push({...r,flightNo:r.arrFlightNo,serviceType:'Terminating',syncKey:fmrSyncKey(r.airline,r.arrFlightNo,r.date)});
+      }
+      if(r.depFlightNo){
+        drafts.push({...r,flightNo:r.depFlightNo,serviceType:'Originating',syncKey:fmrSyncKey(r.airline,r.depFlightNo,r.date)});
+      }
+    } else {
+      if(r.arrFlightNo&&r.depFlightNo){
+        drafts.push({...r,flightNo:r.arrFlightNo,depFlightNoVal:r.depFlightNo,serviceType:'TurnAround',syncKey:fmrSyncKey(r.airline,r.arrFlightNo,r.date)});
+      } else if(r.arrFlightNo){
+        drafts.push({...r,flightNo:r.arrFlightNo,serviceType:'Terminating',syncKey:fmrSyncKey(r.airline,r.arrFlightNo,r.date)});
+      } else if(r.depFlightNo){
+        drafts.push({...r,flightNo:r.depFlightNo,serviceType:'Originating',syncKey:fmrSyncKey(r.airline,r.depFlightNo,r.date)});
+      }
+    }
+  });
+  return drafts;
+}
+
+// Compare drafts against existing DB.flights and build a change plan
+function buildFMRSyncPlan(drafts){
+  const plan={toCreate:[],toUpdate:[],unchanged:0};
+  drafts.forEach(d=>{
+    const existing=DB.flights.find(f=>f.FMRSyncKey===d.syncKey&&!f.IsDeleted);
+    if(!existing){
+      plan.toCreate.push(d);
+    } else {
+      const changes={};
+      if(d.acType&&d.acType!==existing.AircraftType) changes.AircraftType={from:existing.AircraftType,to:d.acType};
+      if(d.reg&&d.reg!==existing.AircraftRegistration) changes.AircraftRegistration={from:existing.AircraftRegistration,to:d.reg};
+      if(d.parking&&d.parking!=='OPEN'&&d.parking!==existing.ParkingStand) changes.ParkingStand={from:existing.ParkingStand,to:d.parking};
+      if(d.opType&&d.opType!==existing.OperationType) changes.OperationType={from:existing.OperationType,to:d.opType};
+      if(Object.keys(changes).length){
+        plan.toUpdate.push({draft:d,existing,changes});
+      } else {
+        plan.unchanged++;
+      }
+    }
+  });
+  return plan;
+}
+
+// Apply a sync plan to DB.flights — call after user confirms preview
+async function applyFMRSyncPlan(plan,fileName){
+  plan.toCreate.forEach(d=>{
+    const nf={
+      ID:DB.nextID.flights++,
+      FlightNo:d.flightNo,
+      ServiceType:d.serviceType,
+      FlightDate:d.date,
+      Airline:d.airline,
+      ArrFlightNo:d.serviceType==='Originating'?'':d.flightNo,
+      DepFlightNo:d.serviceType==='Terminating'?'':(d.depFlightNoVal||(d.serviceType==='Originating'?d.flightNo:'')),
+      Origin:d.origin||'—',Destination:d.dest||'—',
+      SDA:d.date,SDD:d.date,ADA:'',ADD:'',
+      STA:d.serviceType==='Originating'?'':d.sta,
+      STD:d.serviceType==='Terminating'?'':d.std,
+      ATA:'',ATD:'',
+      ParkingStand:(d.parking&&d.parking!=='OPEN')?d.parking:'',
+      AircraftType:d.acType,AircraftRegistration:d.reg,
+      OperationType:d.opType,
+      Status:'Scheduled',IsDeleted:false,
+      FMRSyncKey:d.syncKey,
+      CreatedByUser:S.user.Username,UpdatedByUser:S.user.Username,DeleteReason:''
+    };
+    DB.flights.push(nf);
+  });
+  plan.toUpdate.forEach(({existing,changes})=>{
+    const fl=DB.flights.find(f=>f.ID===existing.ID);
+    if(!fl) return;
+    Object.keys(changes).forEach(k=>{fl[k]=changes[k].to;});
+    fl.UpdatedByUser=S.user.Username;fl.UpdatedAt=new Date().toISOString();
+  });
+  DB.fmrSyncs.push({ID:DB.nextID.fmrSyncs++,FileName:fileName,SyncedBy:S.user.Username,SyncedAt:new Date().toISOString(),Created:plan.toCreate.length,Updated:plan.toUpdate.length,Unchanged:plan.unchanged});
+  addAudit('Sync','Flight','FMR sync: '+plan.toCreate.length+' created, '+plan.toUpdate.length+' updated, '+plan.unchanged+' unchanged — '+fileName);
+  await saveDB();
+}
+
+function triggerFMRUpload(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.xml';
+  inp.onchange=async e=>{
+    const file=e.target.files[0];if(!file) return;
+    const text=await file.text();
+    try{
+      const records=parseFMRXML(text);
+      const drafts=recordsToFlightDrafts(records);
+      const plan=buildFMRSyncPlan(drafts);
+      showFMRSyncPreview(plan,file.name);
+    }catch(err){
+      showToast('FMR import failed: '+err.message,'te');
+    }
+  };
+  inp.click();
+}
+
+function showFMRSyncPreview(plan,fileName){
+  S.fmrPreview={plan,fileName};
+  S.modal='fmrPreview';
+  render();
+}
+
+function buildFMRPreviewModal(){
+  const {plan,fileName}=S.fmrPreview;
+  const modal=h('div',{cls:'modal',style:'max-width:680px'});
+  const mh=h('div',{cls:'mh'});mh.appendChild(ht('div','mt','FMR Sync Preview — '+fileName));
+  const cl=h('button',{cls:'mc',onClick:()=>{S.modal=null;S.fmrPreview=null;render();}},'×');mh.appendChild(cl);modal.appendChild(mh);
+
+  const sg=h('div',{style:'display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px'});
+  [{l:'New Flights',v:plan.toCreate.length,c:'#16a34a'},{l:'To Update',v:plan.toUpdate.length,c:'#2563eb'},{l:'Unchanged',v:plan.unchanged,c:'#5a6a8a'}].forEach(s=>{
+    const el=h('div',{cls:'stat'});el.appendChild(ht('div','lbl',s.l));const v=ht('div','val',String(s.v));v.style.color=s.c;el.appendChild(v);sg.appendChild(el);
+  });
+  modal.appendChild(sg);
+
+  if(plan.toCreate.length){
+    modal.appendChild(ht('div','sec-t','✈ New Flights ('+plan.toCreate.length+')'));
+    const box=h('div',{style:'max-height:160px;overflow-y:auto;background:#f8faff;border-radius:6px;padding:8px;margin-bottom:12px'});
+    plan.toCreate.slice(0,50).forEach(d=>{
+      box.appendChild(ht('div','xs',d.airline+' '+d.flightNo+' — '+d.serviceType+' — '+(d.origin||'—')+'→'+(d.dest||'—')+' — '+d.date));
+    });
+    if(plan.toCreate.length>50) box.appendChild(ht('div','xs mut','...and '+(plan.toCreate.length-50)+' more'));
+    modal.appendChild(box);
+  }
+
+  if(plan.toUpdate.length){
+    modal.appendChild(ht('div','sec-t','🔄 Updates ('+plan.toUpdate.length+')'));
+    const box=h('div',{style:'max-height:160px;overflow-y:auto;background:#f8faff;border-radius:6px;padding:8px;margin-bottom:12px'});
+    plan.toUpdate.slice(0,50).forEach(({draft,changes})=>{
+      const changeStr=Object.keys(changes).map(k=>k+': '+(changes[k].from||'—')+' → '+changes[k].to).join(', ');
+      box.appendChild(ht('div','xs',draft.airline+' '+draft.flightNo+' — '+changeStr));
+    });
+    if(plan.toUpdate.length>50) box.appendChild(ht('div','xs mut','...and '+(plan.toUpdate.length-50)+' more'));
+    modal.appendChild(box);
+  }
+
+  if(!plan.toCreate.length&&!plan.toUpdate.length){
+    modal.appendChild(h('div',{cls:'notebox'},'No changes detected — all flights already up to date.'));
+  }
+
+  const btnRow=h('div',{cls:'flex g2x',style:'margin-top:10px'});
+  const confirmBtn=h('button',{cls:'btn bp',onClick:async()=>{
+    confirmBtn.disabled=true;confirmBtn.textContent='Applying...';
+    await applyFMRSyncPlan(plan,fileName);
+    showToast(`Sync complete: ${plan.toCreate.length} created, ${plan.toUpdate.length} updated ✓`,'ts');
+    S.modal=null;S.fmrPreview=null;render();
+  }},ic('check',13),' Apply Sync');
+  const cancelBtn=h('button',{cls:'btn',onClick:()=>{S.modal=null;S.fmrPreview=null;render();}},'Cancel');
+  btnRow.appendChild(confirmBtn);btnRow.appendChild(cancelBtn);modal.appendChild(btnRow);
+  return modal;
+}
+
+function renderSchedule(){
+  const wrap=h('div',{});
+  const hdr=h('div',{cls:'flex ic jb mb4'});hdr.appendChild(ht('h2','','Schedule Management'));
+  if(canSched()){
+    const btns=h('div',{cls:'flex g2x'});
+    const ab=h('button',{cls:'btn bp',onClick:()=>{S.editFlight=null;S.scheduleStep=1;S.modal='addFlight';render();}},ic('plus',13),' Add Flight');
+    const cb=h('button',{cls:'btn',onClick:()=>triggerCSVUpload()},ic('upload',13),' Upload Schedule CSV');
+    const fb=h('button',{cls:'btn bs',onClick:()=>triggerFMRUpload()},ic('refresh-dot',13),' Sync from FMR');
+    btns.appendChild(ab);btns.appendChild(cb);btns.appendChild(fb);hdr.appendChild(btns);
+  }
+  wrap.appendChild(hdr);
+  if(DB.scheduleImports.length){
+    const imp=h('div',{cls:'card card-sm mb3'});imp.appendChild(ht('div','ch','Last CSV Import'));
+    const last=DB.scheduleImports[DB.scheduleImports.length-1];
+    const row=h('div',{cls:'flex ic g3x sm'});
+    row.appendChild(ic('file-spreadsheet',14));row.appendChild(ht('span','',last.FileName));row.appendChild(ht('span','mut',last.UploadedBy+' · '+fmtD(last.UploadedAt)));row.appendChild(bdg(last.ImportStatus,'bg'));row.appendChild(ht('span','mut',last.SuccessfulRows+'/'+last.TotalRows+' rows'));
+    imp.appendChild(row);wrap.appendChild(imp);
+  }
+  if(DB.fmrSyncs&&DB.fmrSyncs.length){
+    const fimp=h('div',{cls:'card card-sm mb3'});fimp.appendChild(ht('div','ch','Last FMR Sync'));
+    const lastF=DB.fmrSyncs[DB.fmrSyncs.length-1];
+    const frow=h('div',{cls:'flex ic g3x sm'});
+    frow.appendChild(ic('refresh-dot',14));frow.appendChild(ht('span','',lastF.FileName));frow.appendChild(ht('span','mut',lastF.SyncedBy+' · '+fmtD(lastF.SyncedAt)));
+    frow.appendChild(bdg(lastF.Created+' new','bg'));frow.appendChild(bdg(lastF.Updated+' updated','bb'));frow.appendChild(ht('span','mut',lastF.Unchanged+' unchanged'));
+    fimp.appendChild(frow);wrap.appendChild(fimp);
+  }
+  const tc=h('div',{cls:'card'});tc.appendChild(ht('div','ch','All Flights'));
+  const tw=h('div',{cls:'tw'});const tbl=h('table',{});
+  const thr=h('tr',{});['#','Type','Operation','Airline','Flight No','Date','SDA','SDD','Origin','Dest','STA','STD','ATA','ATD','Stand','A/C','Status','Actions'].forEach(c=>thr.appendChild(h('th',{},c)));
+  tbl.appendChild(h('thead',{},thr));
+  const tbody=h('tbody',{});
+  const typeBadge={Terminating:'bb',Originating:'bg',TurnAround:'ba'};
+  DB.flights.filter(f=>!f.IsDeleted).sort((a,b)=>a.FlightDate.localeCompare(b.FlightDate)||(a.STA||a.STD||'').localeCompare(b.STA||b.STD||'')).forEach((f,i)=>{
+    const tr=h('tr',{});
+    tr.appendChild(h('td',{cls:'xs mut'},String(i+1)));
+    const stCell=h('td',{});stCell.appendChild(bdg(getServiceType(f),typeBadge[getServiceType(f)]||'bgr'));tr.appendChild(stCell);
+    tr.appendChild(h('td',{cls:'xs'},f.OperationType||'SKD'));
+    [f.Airline||'—',f.FlightNo,f.FlightDate,f.SDA||f.FlightDate,f.SDD||f.FlightDate,f.Origin||'—',f.Destination||'—',f.STA||'—',f.STD||'—',f.ATA||'—',f.ATD||'—',f.ParkingStand||'—',f.AircraftType||'—'].forEach(v=>tr.appendChild(h('td',{},v||'—')));
+    const std=h('td',{});std.appendChild(stBdg(computeAutoStatus(f)));tr.appendChild(std);
+    const atd=h('td',{cls:'flex g2x'});
+    if(canSched()){
+      const eb=h('button',{cls:'btn btn-xs',onClick:e=>{e.stopPropagation();S.editFlight=f;S.scheduleStep=2;S.modal='addFlight';render();}},ic('edit',11),' Edit');
+      const db=h('button',{cls:'btn btn-xs bd',onClick:e=>{e.stopPropagation();const reason=prompt('Delete reason for '+f.FlightNo+':','');if(reason!==null){const fl=DB.flights.find(x=>x.ID===f.ID);if(fl){fl.IsDeleted=true;fl.DeleteReason=reason;}addAudit('Delete','Flight','Deleted: '+f.FlightNo+' — '+reason,f.ID);saveDB();showToast('Flight deleted','ti');render();}}},ic('trash',11),' Del');
+      atd.appendChild(eb);atd.appendChild(db);
+    }
+    tr.appendChild(atd);tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);tw.appendChild(tbl);tc.appendChild(tw);wrap.appendChild(tc);
+  return wrap;
+}
+
+function triggerCSVUpload(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.csv';
+  inp.onchange=async e=>{
+    const file=e.target.files[0];if(!file) return;
+    const text=await file.text();
+    await parseAndImportCSV(text,file.name);
+  };
+  inp.click();
+}
+
+async function parseAndImportCSV(text,fileName){
+  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l);
+  if(!lines.length){showToast('Empty CSV file','te');return;}
+  const headers=lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/\s+/g,''));
+  const rows=lines.slice(1).filter(l=>l.replace(/,/g,'').trim());
+  let success=0,failed=0,errors=[];
+  rows.forEach((line,idx)=>{
+    const cols=line.split(',').map(c=>c.trim());
+    const get=(key)=>{const i=headers.indexOf(key);return i>=0?cols[i]||'':''};
+    const airlineCode=get('airlinecode');
+    const serviceType=get('servicetype').trim();
+    const sda=get('sda');const sdd=get('sdd');
+    const arrFno=get('arrfno');const depFno=get('depfno');
+    const aircraft=get('aircraft');const acReg=get('aircraftreg');
+    const origin1=get('origin1');const dest1=get('dest1');
+    const sta=get('sta').replace(':','');const std=get('std').replace(':','');
+    if(!airlineCode||!serviceType){failed++;errors.push('Row '+(idx+2)+': Missing airline or service type');return;}
+    const flightNo=(arrFno||depFno||'').trim();
+    if(!flightNo){failed++;errors.push('Row '+(idx+2)+': No flight number');return;}
+    const flightDate=sda||sdd||new Date().toISOString().slice(0,10);
+    // Normalise date M/D/YYYY → YYYY-MM-DD
+    function normDate(d){if(!d) return '';const p=d.split('/');if(p.length===3){return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');}return d;}
+    const normSDA=normDate(sda);const normSDD=normDate(sdd);
+    const normFD=normSDA||normSDD;
+    const dup=DB.flights.find(x=>x.FlightNo===flightNo&&x.FlightDate===normFD&&!x.IsDeleted);
+    if(dup){failed++;errors.push('Row '+(idx+2)+': Duplicate '+flightNo+' on '+normFD);return;}
+    const nf={ID:DB.nextID.flights++,FlightNo:flightNo,ServiceType:serviceType,FlightDate:normFD,Airline:airlineCode,ArrFlightNo:arrFno,DepFlightNo:depFno,Origin:origin1||'—',Destination:dest1||'—',SDA:normSDA,SDD:normSDD,ADA:'',ADD:'',STA:sta,STD:std,ATA:'',ATD:'',ParkingStand:'',AircraftType:aircraft,AircraftRegistration:acReg,Status:'Scheduled',IsDeleted:false,CreatedByUser:S.user.Username,UpdatedByUser:S.user.Username,DeleteReason:''};
+    DB.flights.push(nf);success++;
+  });
+  DB.scheduleImports.push({ID:DB.nextID.scheduleImports++,FileName:fileName,UploadedBy:S.user.Username,UploadedAt:new Date().toISOString(),TotalRows:rows.length,SuccessfulRows:success,FailedRows:failed,ImportStatus:failed===0?'Completed':'Partial',ErrorSummary:errors.join('; ')});
+  addAudit('Upload','Schedule','CSV import: '+success+' added, '+failed+' failed — '+fileName);
+  await saveDB();
+  showToast(`CSV imported: ${success} flights added${failed>0?', '+failed+' failed':''}  ✓`,'ts');
+  if(errors.length) setTimeout(()=>alert('Import warnings:\n'+errors.join('\n')),300);
+  render();
+}
+
+// Auto-compute status based on actual vs scheduled times
+function computeAutoStatus(f){
+  const now=new Date();
+  const todayStr=now.toISOString().slice(0,10);
+  if(f.ATD&&f.STD&&f.ATD>f.STD) return 'Dep Delayed';
+  if(f.ATA&&f.STA&&f.ATA>f.STA) return 'Arr Delayed';
+  if(f.ATD&&f.STD&&f.ATD<=f.STD) return 'On Time';
+  if(f.ATA&&f.STA&&f.ATA<=f.STA) return 'On Time';
+  return f.Status;
+}
+
+// Get flight card color class based on urgency/status
+function getFlightCardColor(f){
+  const bl=getBL(f.ID);
+  const autoStatus=computeAutoStatus(f);
+  if(autoStatus==='Dep Delayed'||autoStatus==='Arr Delayed') return 'flight-card-red';
+  if(f.Status==='Cancelled') return 'flight-card-grey';
+  if(f.Status==='Departed'||f.Status==='Arrived') return 'flight-card-green';
+  // Check if STD < 4 hours away and no pre-flight check
+  if(f.STD&&f.FlightDate){
+    const now=new Date();
+    const stdFull=new Date(f.FlightDate+'T'+f.STD+':00');
+    const diffHrs=(stdFull-now)/3600000;
+    const preFlightDone=bl&&bl.PreFlightBriefingCheck;
+    if(diffHrs>=0&&diffHrs<4&&!preFlightDone) return 'flight-card-orange';
+    if(diffHrs>=0&&diffHrs<4) return 'flight-card-yellow';
+  }
+  return 'flight-card-default';
+}
+
+function renderAgentReport(){
+  const wrap=h('div',{});
+  const roleLabel=S.userDept==='Basement/LC'?'Basement/LC':'FIC/Ramp';
+  wrap.appendChild(ht('h2','mb3',roleLabel+' Shift Report'));
+
+  // ── View saved report ──────────────────────────────────
+  if(S.agentReportView){
+    const r=S.agentReportView;
+    const vcard=h('div',{cls:'card'});
+    const vh=h('div',{style:'display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #d1daea'});
+    const vi=h('div',{});
+    vi.appendChild(ht('div','bld',roleLabel+' Shift Report — '+r.Shift+' Shift'));
+    vi.appendChild(ht('div','xs mut',r.Date+' · '+r.AgentName+' (PRN: '+r.AgentPRN+') · Submitted to: '+(r.DutyManager||'—')+' · '+r.SubmittedAt.slice(0,16).replace('T',' ')));
+    vh.appendChild(vi);
+    const btns=h('div',{cls:'flex g2x'});
+    btns.appendChild(h('button',{cls:'btn bp',onClick:()=>exportAgentReportPDF(r)},ic('file-text',13),' Download PDF'));
+    btns.appendChild(h('button',{cls:'btn',onClick:()=>{S.agentReportView=null;render();}},ic('arrow-left',13),' Back'));
+    vh.appendChild(btns);vcard.appendChild(vh);
+    vcard.appendChild(ht('div','sec-t','📋 Shift Notes'));
+    if(r.Notes&&r.Notes.length){
+      r.Notes.forEach(n=>{
+        const row=h('div',{style:'display:grid;grid-template-columns:120px 1fr;gap:10px;background:#f8faff;border:1px solid #d1daea;border-radius:8px;padding:10px 14px;margin-bottom:8px'});
+        const flt=h('div',{});flt.appendChild(ht('div','xs mut bld','FLT No.'));flt.appendChild(ht('div','bld',n.flt||'—'));row.appendChild(flt);
+        const nt=h('div',{});nt.appendChild(ht('div','xs mut bld','Note'));nt.appendChild(ht('div','',n.note||'—'));row.appendChild(nt);
+        vcard.appendChild(row);
+      });
+    } else {vcard.appendChild(ht('div','xs mut','No notes recorded.'));}
+    wrap.appendChild(vcard);return wrap;
+  }
+
+  // ── History ─────────────────────────────────────────────
+  const myReports=(DB.agentReports||[]).filter(r=>r.AgentUsername===S.user.Username);
+  if(myReports.length){
+    const hcard=h('div',{cls:'card card-sm mb3'});
+    hcard.appendChild(ht('div','ch','My Previous Reports'));
+    const tw=h('div',{cls:'tw'});const tbl=h('table',{});
+    const thr=h('tr',{});['Date','Shift','DM','Notes','Submitted At','Actions'].forEach(c=>thr.appendChild(h('th',{},c)));
+    tbl.appendChild(h('thead',{},thr));const tb=h('tbody',{});
+    [...myReports].reverse().forEach(r=>{
+      const tr=h('tr',{});
+      [r.Date,r.Shift,r.DutyManager||'—',String((r.Notes||[]).length)+' notes',r.SubmittedAt.slice(0,16).replace('T',' ')].forEach(v=>tr.appendChild(h('td',{},v)));
+      const ac=h('td',{cls:'flex g2x'});
+      ac.appendChild(h('button',{cls:'btn btn-xs',onClick:()=>{S.agentReportView=r;render();}},ic('eye',11),' View'));
+      ac.appendChild(h('button',{cls:'btn btn-xs bs',onClick:()=>exportAgentReportPDF(r)},ic('download',11),' PDF'));
+      tr.appendChild(ac);tb.appendChild(tr);
+    });
+    tbl.appendChild(tb);tw.appendChild(tbl);hcard.appendChild(tw);wrap.appendChild(hcard);
+  }
+
+  // ── New Report Form ──────────────────────────────────────
+  const fcard=h('div',{cls:'card'});
+  fcard.appendChild(ht('div','ch','New Shift Report'));
+
+  // Date + Shift
+  const row1=h('div',{cls:'g2 mb3'});
+  const today=new Date().toISOString().slice(0,10);
+  const dateF=mkField('Shift Date',S.agentReportDate,false);dateF.inp.type='date';dateF.inp.onchange=e=>{S.agentReportDate=e.target.value;render();};
+  const shiftSel=mkSel('Shift Period',S.agentReportShift,['Morning','Afternoon','Night'],false);shiftSel.sel.onchange=e=>{S.agentReportShift=e.target.value;render();};
+  row1.appendChild(dateF.el);row1.appendChild(shiftSel.el);fcard.appendChild(row1);
+
+  // Agent name + PRN
+  const row2=h('div',{cls:'g2 mb3'});
+  const agentNameF=mkField('Your Name',S.user.DisplayName,false);
+  const agentPRNF=mkField('Your PRN','',false);
+  row2.appendChild(agentNameF.el);row2.appendChild(agentPRNF.el);fcard.appendChild(row2);
+
+  // Duty Manager selector
+  const dmWrap=h('div',{cls:'fr mb3'});
+  dmWrap.appendChild(ht('label','fl','Duty Manager'));
+  const dmSel=h('select',{cls:'fc'});
+  const dmUsers=DB.users.filter(u=>u.Role==='Duty Manager'&&u.IsActive);
+  const defOpt=h('option',{value:''},'— Select Duty Manager —');dmSel.appendChild(defOpt);
+  dmUsers.forEach(u=>{const o=h('option',{value:u.DisplayName},u.DisplayName+' ('+u.Username+')');dmSel.appendChild(o);});
+  dmWrap.appendChild(dmSel);fcard.appendChild(dmWrap);
+
+  // Notes — FLT No. + Note entries
+  fcard.appendChild(ht('div','sec-t','📋 Shift Notes'));
+  const notesState={items:[{flt:'',note:''}]};
+  const notesWrap=h('div',{});
+
+  function renderNoteEntries(){
+    notesWrap.innerHTML='';
+    notesState.items.forEach((entry,idx)=>{
+      const card=h('div',{style:'background:#f8faff;border:1px solid #d1daea;border-radius:8px;padding:12px 14px;margin-bottom:10px'});
+      const grid=h('div',{style:'display:grid;grid-template-columns:120px 1fr 32px;gap:10px;align-items:start'});
+      // FLT No field
+      const fltWrap=h('div',{});fltWrap.appendChild(ht('label','xs mut bld mb1','FLT No.'));
+      const fltInp=h('input',{type:'text',cls:'fc',placeholder:'e.g. SV303',value:entry.flt||''});
+      fltInp.oninput=e=>{notesState.items[idx].flt=e.target.value;};
+      fltWrap.appendChild(fltInp);grid.appendChild(fltWrap);
+      // Note field
+      const noteWrap=h('div',{});noteWrap.appendChild(ht('label','xs mut bld mb1','Note'));
+      const noteInp=h('input',{type:'text',cls:'fc',placeholder:'Write your note...',value:entry.note||''});
+      noteInp.oninput=e=>{notesState.items[idx].note=e.target.value;};
+      noteWrap.appendChild(noteInp);grid.appendChild(noteWrap);
+      // Actions
+      const actWrap=h('div',{style:'display:flex;flex-direction:column;gap:4px;padding-top:18px'});
+      const delBtn=h('button',{cls:'btn btn-xs bd',onClick:()=>{notesState.items.splice(idx,1);if(!notesState.items.length)notesState.items.push({flt:'',note:''});renderNoteEntries();}},ic('trash',11));
+      actWrap.appendChild(delBtn);grid.appendChild(actWrap);
+      card.appendChild(grid);notesWrap.appendChild(card);
+    });
+  }
+  renderNoteEntries();fcard.appendChild(notesWrap);
+  fcard.appendChild(h('button',{cls:'btn btn-xs bs',style:'margin-bottom:12px',onClick:()=>{notesState.items.push({flt:'',note:''});renderNoteEntries();}},ic('plus',11),' Add Entry'));
+
+  // Submit
+  fcard.appendChild(h('button',{cls:'btn bp',style:'margin-top:10px',onClick:async()=>{
+    if(!dmSel.value){showToast('Please select a Duty Manager','te');return;}
+    const notes=notesState.items.filter(n=>n.note.trim());
+    if(!notes.length){showToast('Please add at least one note','te');return;}
+    const report={
+      ID:DB.nextID.agentReports++,
+      Date:S.agentReportDate,Shift:S.agentReportShift,
+      AgentName:agentNameF.inp.value||S.user.DisplayName,
+      AgentPRN:agentPRNF.inp.value||'—',
+      AgentUsername:S.user.Username,
+      Department:S.userDept,
+      DutyManager:dmSel.value,
+      Notes:notes,
+      SubmittedAt:new Date().toISOString(),
+    };
+    if(!DB.agentReports) DB.agentReports=[];
+    DB.agentReports.push(report);
+    addAudit('Create','AgentReport',S.userDept+' shift report submitted to '+dmSel.value+': '+S.agentReportDate+' '+S.agentReportShift);
+    await saveDB();showToast('Shift report submitted ✓','ts');
+    S.agentReportView=report;render();
+  }},ic('send',13),' Submit Report'));
+  wrap.appendChild(fcard);
+  return wrap;
+}
+function exportAgentReportPDF(r){
+  const shiftColors={Morning:'#1d4ed8',Afternoon:'#d97706',Night:'#7c3aed'};
+  const sc=shiftColors[r.Shift]||'#0f2850';
+  const noteRows=(r.Notes||[]).filter(n=>n.note&&n.note.trim()).map(n=>`
+    <tr>
+      <td style="font-weight:700;white-space:nowrap;width:110px">${n.flt||'—'}</td>
+      <td>${n.note}</td>
+    </tr>`).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8">
+  <title>${r.Department} Shift Report — ${r.Date} ${r.Shift}</title>
+  <style>
+    body{font-family:'Segoe UI',sans-serif;color:#1a2540;margin:0;padding:0}
+    .cover{background:${sc};color:#fff;padding:36px 48px 28px}
+    .cover h1{font-size:24px;margin:0 0 6px}
+    .cover .meta{font-size:13px;opacity:.85}
+    .body{padding:28px 48px}
+    .section{margin-bottom:28px}
+    .section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:${sc};border-bottom:2px solid ${sc};padding-bottom:4px;margin-bottom:12px}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{background:#f5f7fc;padding:7px 10px;text-align:left;font-weight:700;font-size:11px;color:#5a6a8a;text-transform:uppercase;border-bottom:2px solid #d1daea}
+    td{padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:top}
+    .footer{margin-top:32px;border-top:1px solid #e5e7eb;padding-top:10px;font-size:11px;color:#5a6a8a;display:flex;justify-content:space-between}
+    .empty{color:#5a6a8a;font-size:13px;font-style:italic}
+    @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  </style></head><body>
+  <div class="cover">
+    <div style="font-size:11px;opacity:.7;margin-bottom:6px">✈ FIARS — Flight Information & Activity Reporting System</div>
+    <h1>${r.Department} Shift Report</h1>
+    <div class="meta">
+      <b>${r.Shift} Shift</b> &nbsp;·&nbsp; ${r.Date}
+      &nbsp;·&nbsp; ${r.AgentName} &nbsp;·&nbsp; PRN: ${r.AgentPRN}
+      &nbsp;·&nbsp; Duty Manager: ${r.DutyManager||'—'}
+      &nbsp;·&nbsp; Submitted: ${r.SubmittedAt.slice(0,16).replace('T',' ')}
+    </div>
+  </div>
+  <div class="body">
+    <div class="section">
+      <div class="section-title">📋 Shift Notes</div>
+      ${noteRows
+        ?`<table><thead><tr><th>FLT No.</th><th>Note</th></tr></thead><tbody>${noteRows}</tbody></table>`
+        :'<p class="empty">No notes recorded.</p>'}
+    </div>
+    <div class="footer">
+      <span>FIARS · ${r.Department} Shift Report · For Duty Manager: ${r.DutyManager||'—'}</span>
+      <span>Generated: ${new Date().toLocaleString()}</span>
+    </div>
+  </div>
+  </body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const win=window.open(url,'_blank');
+  if(win) setTimeout(()=>{win.focus();win.print();},800);
+  showToast('Report opened — Print → Save as PDF ✓','ts');
+}
+
+
+
+function renderOpReport(){
+  const wrap=h('div',{});
+  const hdr=h('div',{cls:'flex ic jb mb3'});
+  hdr.appendChild(ht('h2','','Operational Report'));
+  wrap.appendChild(hdr);
+
+  // ── If viewing a saved report ───────────────────────────
+  if(S.opReportView){
+    const r=S.opReportView;
+    const vwrap=h('div',{cls:'card'});
+    // Header bar
+    const vh=h('div',{style:'display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #d1daea'});
+    const vinfo=h('div',{});
+    vinfo.appendChild(ht('div','bld','Operational Report — '+r.Shift+' Shift'));
+    vinfo.appendChild(ht('div','xs mut',r.Date+' · Submitted by: '+r.SubmittedBy+' · '+r.SubmittedAt.slice(0,16).replace('T',' ')));
+    vh.appendChild(vinfo);
+    const btns=h('div',{cls:'flex g2x'});
+    const pdfB=h('button',{cls:'btn bp',onClick:()=>exportOpReportPDF(r)},ic('file-text',13),' Download PDF');
+    const backB=h('button',{cls:'btn',onClick:()=>{S.opReportView=null;render();}},ic('arrow-left',13),' Back');
+    btns.appendChild(pdfB);btns.appendChild(backB);vh.appendChild(btns);
+    vwrap.appendChild(vh);
+
+    // Section 1: Operational Notes
+    vwrap.appendChild(ht('div','sec-t','📋 Operational Notes'));
+    if(r.OperationalNotes&&r.OperationalNotes.length){
+      const ul=h('ul',{style:'margin:0;padding-left:20px'});
+      r.OperationalNotes.forEach(n=>{if(n.trim())ul.appendChild(h('li',{style:'margin-bottom:4px;font-size:13px'},n));});
+      vwrap.appendChild(ul);
+    } else {vwrap.appendChild(ht('div','xs mut','No notes recorded.'));}
+
+    // Section 2: Station Delays
+    vwrap.appendChild(ht('div','sec-t','⏱ Station Delays'));
+    if(r.StationDelays&&r.StationDelays.length){
+      const tw=h('div',{cls:'tw'});const tbl=h('table',{});
+      const thr=h('tr',{});['Date','Flight No.','Delay Amount','Delay Code','Delay Reason'].forEach(c=>thr.appendChild(h('th',{},c)));
+      tbl.appendChild(h('thead',{},thr));
+      const tb=h('tbody',{});
+      r.StationDelays.forEach(d=>{
+        const tr=h('tr',{});[d.Date,d.FlightNo,d.DelayAmount,d.DelayCode,d.DelayReason].forEach(v=>tr.appendChild(h('td',{},v||'—')));
+        tb.appendChild(tr);
+      });
+      tbl.appendChild(tb);tw.appendChild(tbl);vwrap.appendChild(tw);
+    } else {vwrap.appendChild(ht('div','xs mut','No delays recorded.'));}
+
+    // Section 3: No Show Staff
+    vwrap.appendChild(ht('div','sec-t','🚫 No Show Staff'));
+    if(r.NoShowStaff&&r.NoShowStaff.length){
+      const tw=h('div',{cls:'tw'});const tbl=h('table',{});
+      const thr=h('tr',{});['Name','PRN'].forEach(c=>thr.appendChild(h('th',{},c)));
+      tbl.appendChild(h('thead',{},thr));
+      const tb=h('tbody',{});
+      r.NoShowStaff.forEach(s=>{const tr=h('tr',{});[s.Name,s.PRN].forEach(v=>tr.appendChild(h('td',{},v||'—')));tb.appendChild(tr);});
+      tbl.appendChild(tb);tw.appendChild(tbl);vwrap.appendChild(tw);
+    } else {vwrap.appendChild(ht('div','xs mut','No no-show staff recorded.'));}
+
+    // Section 4: Suggestions
+    vwrap.appendChild(ht('div','sec-t','💡 Suggestions'));
+    vwrap.appendChild(ht('div','',r.Suggestions||'—'));
+    wrap.appendChild(vwrap);
+    return wrap;
+  }
+
+  // ── Report History ──────────────────────────────────────
+  const hist=DB.opReports||[];
+  if(hist.length){
+    const hcard=h('div',{cls:'card card-sm mb3'});hcard.appendChild(ht('div','ch','Previous Reports'));
+    const tw=h('div',{cls:'tw'});const tbl=h('table',{});
+    const thr2=h('tr',{});['Date','Shift','Submitted By','Time','Actions'].forEach(c=>thr2.appendChild(h('th',{},c)));
+    tbl.appendChild(h('thead',{},thr2));
+    const tb2=h('tbody',{});
+    [...hist].reverse().forEach(r=>{
+      const tr=h('tr',{});
+      [r.Date,r.Shift,r.SubmittedBy,r.SubmittedAt.slice(0,16).replace('T',' ')].forEach(v=>tr.appendChild(h('td',{},v)));
+      const ac=h('td',{cls:'flex g2x'});
+      const vb=h('button',{cls:'btn btn-xs',onClick:()=>{S.opReportView=r;render();}},ic('eye',11),' View');
+      const pb=h('button',{cls:'btn btn-xs bs',onClick:()=>exportOpReportPDF(r)},ic('download',11),' PDF');
+      ac.appendChild(vb);ac.appendChild(pb);tr.appendChild(ac);tb2.appendChild(tr);
+    });
+    tbl.appendChild(tb2);tw.appendChild(tbl);hcard.appendChild(tw);wrap.appendChild(hcard);
+  }
+
+  // ── Agent Reports submitted to this DM ──────────────────
+  if(S.userRole==='Duty Manager'||S.userRole==='Manager'){
+    const dmName=S.user.DisplayName;
+    const agentReps=(DB.agentReports||[]).filter(r=>
+      r.DutyManager===dmName&&r.Date===S.opReportDate&&r.Shift===S.opReportShift
+    );
+    if(agentReps.length){
+      const acard=h('div',{cls:'card mb3'});
+      acard.appendChild(ht('div','ch','📥 Agent Reports — '+S.opReportDate+' '+S.opReportShift+' Shift'));
+      agentReps.forEach(r=>{
+        const sec=h('div',{style:'border:1px solid #d1daea;border-radius:8px;padding:12px 14px;margin-bottom:10px'});
+        const sh=h('div',{style:'display:flex;align-items:center;justify-content:space-between;margin-bottom:10px'});
+        const si=h('div',{});
+        si.appendChild(ht('div','bld xs',r.Department+' — '+r.AgentName+' (PRN: '+r.AgentPRN+')'));
+        si.appendChild(ht('div','xs mut',r.SubmittedAt.slice(0,16).replace('T',' ')));
+        sh.appendChild(si);
+        sh.appendChild(h('button',{cls:'btn btn-xs bs',onClick:()=>exportAgentReportPDF(r)},ic('download',11),' PDF'));
+        sec.appendChild(sh);
+        // Notes table read-only
+        if(r.Notes&&r.Notes.length){
+          const tw=h('div',{cls:'tw'});const tbl=h('table',{style:'font-size:12px'});
+          const thr=h('tr',{});['FLT No.','Note'].forEach(c=>thr.appendChild(h('th',{},c)));
+          tbl.appendChild(h('thead',{},thr));
+          const tb=h('tbody',{});
+          r.Notes.forEach(n=>{
+            const tr=h('tr',{});
+            tr.appendChild(h('td',{style:'font-weight:700;white-space:nowrap;width:100px'},n.flt||'—'));
+            tr.appendChild(h('td',{},n.note||'—'));
+            tb.appendChild(tr);
+          });
+          tbl.appendChild(tb);tw.appendChild(tbl);sec.appendChild(tw);
+        } else {sec.appendChild(ht('div','xs mut','No notes.'));}
+        acard.appendChild(sec);
+      });
+      wrap.appendChild(acard);
+    } else if(S.opReportDate&&S.opReportShift){
+      const noAgents=h('div',{cls:'card card-sm mb3',style:'border-left:4px solid #d1daea'});
+      noAgents.appendChild(ht('div','xs mut','No agent reports submitted to you for '+S.opReportDate+' '+S.opReportShift+' shift yet.'));
+      wrap.appendChild(noAgents);
+    }
+  }
+
+  // ── New Report Form (Duty Manager only) ─────────────────
+  if(S.userRole!=='Duty Manager'&&S.userRole!=='Manager'){
+    wrap.appendChild(ht('div','card','Access restricted to Duty Manager and Manager.'));return wrap;
+  }
+
+  const existingKey=`${S.opReportDate}_${S.opReportShift}`;
+  const alreadySubmitted=hist.find(r=>r.Date===S.opReportDate&&r.Shift===S.opReportShift);
+
+  const fcard=h('div',{cls:'card'});
+  fcard.appendChild(ht('div','ch','New Operational Report'));
+
+  // Shift selector
+  const shiftRow=h('div',{cls:'g2 mb3'});
+  const dateF=mkField('Shift Date',S.opReportDate,false);dateF.inp.type='date';dateF.inp.onchange=e=>{S.opReportDate=e.target.value;render();};
+  const shiftSel=mkSel('Shift Period',S.opReportShift,['Morning','Afternoon','Night'],false);shiftSel.sel.onchange=e=>{S.opReportShift=e.target.value;render();};
+  shiftRow.appendChild(dateF.el);shiftRow.appendChild(shiftSel.el);fcard.appendChild(shiftRow);
+
+  if(alreadySubmitted){
+    fcard.appendChild(h('div',{cls:'notebox'},'⚠ A report for '+S.opReportDate+' '+S.opReportShift+' shift already exists. View it in the history above.'));
+    wrap.appendChild(fcard);return wrap;
+  }
+
+  // Only Duty Manager can write
+  if(S.userRole!=='Duty Manager'){
+    fcard.appendChild(h('div',{cls:'notebox'},'Only Duty Manager can submit operational reports.'));
+    wrap.appendChild(fcard);return wrap;
+  }
+
+  // ── Section 1: Operational Notes (bullets) ──────────────
+  fcard.appendChild(ht('div','sec-t','📋 Section 1 — Operational Notes'));
+  const notesState={items:['']};
+  const notesWrap=h('div',{id:'notes-wrap'});
+  function renderNotes(){
+    notesWrap.innerHTML='';
+    notesState.items.forEach((val,idx)=>{
+      const row=h('div',{cls:'flex ic g2x mb2'});
+      const bullet=ht('span','mut bld','•');bullet.style.cssText='font-size:18px;line-height:1;flex-shrink:0';row.appendChild(bullet);
+      const inp=h('input',{type:'text',cls:'fc f1',placeholder:'Operational note...',value:val});
+      inp.oninput=e=>{notesState.items[idx]=e.target.value;};
+      row.appendChild(inp);
+      if(notesState.items.length>1){
+        const del=h('button',{cls:'btn btn-xs bd',onClick:()=>{notesState.items.splice(idx,1);renderNotes();}},ic('trash',11));row.appendChild(del);
+      }
+      notesWrap.appendChild(row);
+    });
+  }
+  renderNotes();fcard.appendChild(notesWrap);
+  const addNoteBtn=h('button',{cls:'btn btn-xs bs',style:'margin-bottom:12px',onClick:()=>{notesState.items.push('');renderNotes();}},ic('plus',11),' Add Bullet');
+  fcard.appendChild(addNoteBtn);
+
+  // ── Section 2: Station Delays ───────────────────────────
+  fcard.appendChild(ht('div','sec-t','⏱ Section 2 — Station Delays'));
+  const delaysState={rows:[{Date:S.opReportDate,FlightNo:'',DelayAmount:'',DelayCode:'',DelayReason:''}]};
+  const delaysWrap=h('div',{id:'delays-wrap'});
+  function renderDelays(){
+    delaysWrap.innerHTML='';
+    // Header
+    const hr=h('div',{style:'display:grid;grid-template-columns:120px 100px 110px 100px 1fr 32px;gap:6px;margin-bottom:4px'});
+    ['Date','Flight No.','Delay Amt','Delay Code','Delay Reason',''].forEach(c=>hr.appendChild(ht('span','xs mut bld',c)));
+    delaysWrap.appendChild(hr);
+    delaysState.rows.forEach((row,idx)=>{
+      const gr=h('div',{style:'display:grid;grid-template-columns:120px 100px 110px 100px 1fr 32px;gap:6px;margin-bottom:6px;align-items:center'});
+      const di=h('input',{type:'date',cls:'fc',value:row.Date});di.oninput=e=>{delaysState.rows[idx].Date=e.target.value;};gr.appendChild(di);
+      [['FlightNo','e.g. SV303'],['DelayAmount','e.g. 25 min'],['DelayCode','e.g. 93']].forEach(([k,ph])=>{
+        const inp=h('input',{type:'text',cls:'fc',placeholder:ph,value:row[k]||''});inp.oninput=e=>{delaysState.rows[idx][k]=e.target.value;};gr.appendChild(inp);
+      });
+      const reason=h('input',{type:'text',cls:'fc',placeholder:'Reason...',value:row.DelayReason||''});reason.oninput=e=>{delaysState.rows[idx].DelayReason=e.target.value;};gr.appendChild(reason);
+      const del=h('button',{cls:'btn btn-xs bd',onClick:()=>{delaysState.rows.splice(idx,1);renderDelays();}},ic('trash',11));gr.appendChild(del);
+      delaysWrap.appendChild(gr);
+    });
+  }
+  renderDelays();fcard.appendChild(delaysWrap);
+  const addDelayBtn=h('button',{cls:'btn btn-xs bs',style:'margin-bottom:12px',onClick:()=>{delaysState.rows.push({Date:S.opReportDate,FlightNo:'',DelayAmount:'',DelayCode:'',DelayReason:''});renderDelays();}},ic('plus',11),' Add Row');
+  fcard.appendChild(addDelayBtn);
+
+  // ── Section 3: No Show Staff ────────────────────────────
+  fcard.appendChild(ht('div','sec-t','🚫 Section 3 — No Show Staff'));
+  const noShowState={rows:[{Name:'',PRN:''}]};
+  const noShowWrap=h('div',{id:'noshow-wrap'});
+  function renderNoShow(){
+    noShowWrap.innerHTML='';
+    const hr=h('div',{style:'display:grid;grid-template-columns:1fr 1fr 32px;gap:6px;margin-bottom:4px'});
+    ['Name','PRN',''].forEach(c=>hr.appendChild(ht('span','xs mut bld',c)));noShowWrap.appendChild(hr);
+    noShowState.rows.forEach((row,idx)=>{
+      const gr=h('div',{style:'display:grid;grid-template-columns:1fr 1fr 32px;gap:6px;margin-bottom:6px;align-items:center'});
+      const ni=h('input',{type:'text',cls:'fc',placeholder:'Staff name...',value:row.Name||''});ni.oninput=e=>{noShowState.rows[idx].Name=e.target.value;};gr.appendChild(ni);
+      const pi=h('input',{type:'text',cls:'fc',placeholder:'PRN...',value:row.PRN||''});pi.oninput=e=>{noShowState.rows[idx].PRN=e.target.value;};gr.appendChild(pi);
+      const del=h('button',{cls:'btn btn-xs bd',onClick:()=>{noShowState.rows.splice(idx,1);renderNoShow();}},ic('trash',11));gr.appendChild(del);
+      noShowWrap.appendChild(gr);
+    });
+  }
+  renderNoShow();fcard.appendChild(noShowWrap);
+  const addNoShowBtn=h('button',{cls:'btn btn-xs bs',style:'margin-bottom:12px',onClick:()=>{noShowState.rows.push({Name:'',PRN:''});renderNoShow();}},ic('plus',11),' Add Row');
+  fcard.appendChild(addNoShowBtn);
+
+  // ── Section 4: Suggestions ──────────────────────────────
+  fcard.appendChild(ht('div','sec-t','💡 Section 4 — Suggestions'));
+  const suggTA=h('textarea',{cls:'fc',style:'min-height:80px',placeholder:'Enter any suggestions or recommendations...'});fcard.appendChild(suggTA);
+
+  // ── Submit ───────────────────────────────────────────────
+  const submitBtn=h('button',{cls:'btn bp',style:'margin-top:16px',onClick:async()=>{
+    const notes=notesState.items.filter(n=>n.trim());
+    const delays=delaysState.rows.filter(r=>r.FlightNo.trim()||r.DelayReason.trim());
+    const noshow=noShowState.rows.filter(r=>r.Name.trim()||r.PRN.trim());
+    const report={
+      ID:DB.nextID.opReports++,
+      Date:S.opReportDate,Shift:S.opReportShift,
+      OperationalNotes:notes,
+      StationDelays:delays,
+      NoShowStaff:noshow,
+      Suggestions:suggTA.value.trim(),
+      SubmittedBy:S.user.DisplayName,
+      SubmittedByUsername:S.user.Username,
+      SubmittedAt:new Date().toISOString(),
+    };
+    if(!DB.opReports) DB.opReports=[];
+    DB.opReports.push(report);
+    addAudit('Create','OpReport','Operational report submitted: '+S.opReportDate+' '+S.opReportShift);
+    await saveDB();
+    showToast('Operational report submitted ✓','ts');
+    S.opReportView=report;render();
+  }},ic('send',13),' Submit Report');
+  fcard.appendChild(submitBtn);
+  wrap.appendChild(fcard);
+  return wrap;
+}
+
+function exportOpReportPDF(r){
+  const shiftColors={Morning:'#1d4ed8',Afternoon:'#d97706',Night:'#7c3aed'};
+  const sc=shiftColors[r.Shift]||'#0f2850';
+  const notes=(r.OperationalNotes||[]).filter(n=>n.trim()).map(n=>`<li style="margin-bottom:6px">${n}</li>`).join('');
+  const delays=(r.StationDelays||[]).filter(d=>d.FlightNo||d.DelayReason).map(d=>`<tr><td>${d.Date||'—'}</td><td><b>${d.FlightNo||'—'}</b></td><td>${d.DelayAmount||'—'}</td><td>${d.DelayCode||'—'}</td><td>${d.DelayReason||'—'}</td></tr>`).join('');
+  const noshow=(r.NoShowStaff||[]).filter(s=>s.Name||s.PRN).map(s=>`<tr><td>${s.Name||'—'}</td><td>${s.PRN||'—'}</td></tr>`).join('');
+  // Agent reports submitted to this DM for this shift
+  const agentReps=(DB.agentReports||[]).filter(a=>a.DutyManager===r.SubmittedBy&&a.Date===r.Date&&a.Shift===r.Shift);
+  const agentSections=agentReps.map(a=>`
+    <div style="border:1px solid #d1daea;border-radius:6px;padding:12px;margin-bottom:12px">
+      <div style="font-weight:700;margin-bottom:8px;color:#0f2850">${a.Department} — ${a.AgentName} (PRN: ${a.AgentPRN})</div>
+      ${a.Notes&&a.Notes.length
+        ?`<table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead><tr><th style="background:#f5f7fc;padding:5px 8px;text-align:left;border-bottom:1px solid #d1daea">FLT No.</th><th style="background:#f5f7fc;padding:5px 8px;text-align:left;border-bottom:1px solid #d1daea">Note</th></tr></thead>
+            <tbody>${a.Notes.map(n=>`<tr><td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-weight:700;width:100px">${n.flt||'—'}</td><td style="padding:6px 8px;border-bottom:1px solid #e5e7eb">${n.note||'—'}</td></tr>`).join('')}</tbody>
+          </table>`
+        :'<p style="color:#5a6a8a;font-size:12px;font-style:italic">No notes.</p>'}
+    </div>`).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8">
+  <title>Operational Report ${r.Date} ${r.Shift}</title>
+  <style>
+    body{font-family:'Segoe UI',sans-serif;color:#1a2540;margin:0;padding:0}
+    .cover{background:${sc};color:#fff;padding:40px 48px 32px}
+    .cover h1{font-size:26px;margin:0 0 6px}
+    .cover .meta{font-size:13px;opacity:.85}
+    .body{padding:32px 48px}
+    .section{margin-bottom:32px}
+    .section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:${sc};border-bottom:2px solid ${sc};padding-bottom:4px;margin-bottom:14px}
+    ul{margin:0;padding-left:20px}li{margin-bottom:5px;font-size:13px}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{background:#f5f7fc;padding:7px 10px;text-align:left;font-weight:600;font-size:11px;color:#5a6a8a;text-transform:uppercase;border-bottom:2px solid #d1daea}
+    td{padding:7px 10px;border-bottom:1px solid #e5e7eb}
+    .footer{margin-top:40px;border-top:1px solid #e5e7eb;padding-top:12px;font-size:11px;color:#5a6a8a;display:flex;justify-content:space-between}
+    .empty{color:#5a6a8a;font-size:13px;font-style:italic}
+    p{font-size:13px;line-height:1.6;margin:0}
+    @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  </style></head><body>
+  <div class="cover">
+    <div style="font-size:12px;opacity:.7;margin-bottom:8px">✈ FIARS — Flight Information & Activity Reporting System</div>
+    <h1>Operational Report</h1>
+    <div class="meta"><b>${r.Shift} Shift</b> &nbsp;·&nbsp; ${r.Date} &nbsp;·&nbsp; Duty Manager: ${r.SubmittedBy} &nbsp;·&nbsp; ${r.SubmittedAt.slice(0,16).replace('T',' ')}</div>
+  </div>
+  <div class="body">
+    ${agentSections?`<div class="section"><div class="section-title">📥 Agent Reports</div>${agentSections}</div>`:''}
+    <div class="section"><div class="section-title">📋 Section 1 — Operational Notes</div>${notes?`<ul>${notes}</ul>`:'<p class="empty">No notes.</p>'}</div>
+    <div class="section"><div class="section-title">⏱ Section 2 — Station Delays</div>${delays?`<table><thead><tr><th>Date</th><th>Flight No.</th><th>Delay Amount</th><th>Delay Code</th><th>Delay Reason</th></tr></thead><tbody>${delays}</tbody></table>`:'<p class="empty">No delays.</p>'}</div>
+    <div class="section"><div class="section-title">🚫 Section 3 — No Show Staff</div>${noshow?`<table><thead><tr><th>Name</th><th>PRN</th></tr></thead><tbody>${noshow}</tbody></table>`:'<p class="empty">No no-show staff.</p>'}</div>
+    <div class="section"><div class="section-title">💡 Section 4 — Suggestions</div>${r.Suggestions?`<p>${r.Suggestions.replace(/\n/g,'<br>')}</p>`:'<p class="empty">No suggestions.</p>'}</div>
+    <div class="footer"><span>FIARS Operational Report · Confidential</span><span>Generated: ${new Date().toLocaleString()}</span></div>
+  </div></body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const win=window.open(url,'_blank');
+  if(win) setTimeout(()=>{win.focus();win.print();},800);
+  showToast('Report opened for printing/saving as PDF ✓','ts');
+}
+
+function renderReports(){
+  const wrap=h('div',{});
+  const hdr=h('div',{cls:'flex ic jb mb4'});hdr.appendChild(ht('h2','','Flight Reports'));
+  wrap.appendChild(hdr);
+  const fb=h('div',{cls:'card card-sm mb3'});fb.appendChild(ht('div','ch','Report Filters'));
+  const fg=h('div',{cls:'g3'});
+  const df=h('div',{cls:'fr'});df.appendChild(ht('label','fl','Date'));
+  const di=h('input',{type:'date',cls:'fc',value:S.reportDate||S.dashDate,onInput:e=>{S.reportDate=e.target.value;render();}});df.appendChild(di);fg.appendChild(df);
+  const ff=h('div',{cls:'fr'});ff.appendChild(ht('label','fl','Flight No (optional)'));
+  const fi=h('input',{type:'text',cls:'fc',placeholder:'e.g. SV123',value:S.reportFlight||'',onInput:e=>{S.reportFlight=e.target.value;render();}});ff.appendChild(fi);fg.appendChild(ff);
+  const sf=mkSel('Status filter',S.reportStatus||'All',['All','Scheduled','On Time','Arr Delayed','Dep Delayed','Departed','Arrived','Cancelled'],false);
+  sf.sel.onchange=e=>{S.reportStatus=e.target.value;render();};fg.appendChild(sf.el);fb.appendChild(fg);
+  const ba=h('div',{cls:'flex g2x',style:'margin-top:10px'});
+  const genB=h('button',{cls:'btn bp',onClick:()=>{S.reportGenerated=true;render();}},ic('report',13),' Generate Report');
+  const dlB=h('button',{cls:'btn bs',onClick:()=>downloadReport()},ic('download',13),' Download CSV');
+  const dlHB=h('button',{cls:'btn',onClick:()=>downloadReportHTML()},ic('file-text',13),' Download HTML');
+  ba.appendChild(genB);ba.appendChild(dlB);ba.appendChild(dlHB);fb.appendChild(ba);wrap.appendChild(fb);
+  if(!S.reportGenerated){const em=h('div',{style:'text-align:center;padding:40px;color:#5a6a8a'});em.appendChild(ic('report',32));em.appendChild(ht('p','mt2','Set filters and click Generate Report.'));wrap.appendChild(em);return wrap;}
+  const rDate=S.reportDate||S.dashDate;
+  let rFlights=DB.flights.filter(f=>!f.IsDeleted&&f.FlightDate===rDate);
+  if(S.reportFlight&&S.reportFlight.trim()) rFlights=rFlights.filter(f=>f.FlightNo.toLowerCase().includes(S.reportFlight.trim().toLowerCase()));
+  if(S.reportStatus&&S.reportStatus!=='All') rFlights=rFlights.filter(f=>f.Status===S.reportStatus||computeAutoStatus(f)===S.reportStatus);
+  rFlights.sort((a,b)=>(a.STA||'').localeCompare(b.STA||''));
+  if(!rFlights.length){wrap.appendChild(ht('div','card','No flights found for '+rDate+'.'));return wrap;}
+  const sg=h('div',{cls:'g4 mb4'});
+  const delayed=rFlights.filter(f=>{const s=computeAutoStatus(f);return s==='Arr Delayed'||s==='Dep Delayed';}).length;
+  const done=rFlights.filter(f=>f.Status==='Arrived'||f.Status==='Departed').length;
+  const ontime=rFlights.filter(f=>computeAutoStatus(f)==='On Time').length;
+  [{l:'Total Flights',v:rFlights.length,c:'#2563eb'},{l:'On Time',v:ontime,c:'#16a34a'},{l:'Delayed',v:delayed,c:'#d97706'},{l:'Completed',v:done,c:'#16a34a'}].forEach(s=>{
+    const el=h('div',{cls:'stat'});el.appendChild(ht('div','lbl',s.l));const v=ht('div','val',String(s.v));v.style.color=s.c;el.appendChild(v);sg.appendChild(el);
+  });
+  wrap.appendChild(sg);
+  const tc=h('div',{cls:'card'});tc.appendChild(ht('div','ch','Report: '+rDate+' ('+rFlights.length+' flights)'));
+  const tw=h('div',{cls:'tw'});const tbl=h('table',{});
+  const thr=h('tr',{});['Flight','Route','STA','ATA','STD','ATD','Stand','Status','Basement','FIC/Ramp','Pre-flight✓','Dep MVT✓','Arr MVT✓'].forEach(c=>thr.appendChild(h('th',{},c)));
+  tbl.appendChild(h('thead',{},thr));
+  const tbody=h('tbody',{});
+  rFlights.forEach(f=>{
+    const bl=getBL(f.ID)||{};const fi2=getFIC(f.ID)||{};
+    const autoSt=computeAutoStatus(f);
+    const tr=h('tr',{});
+    [f.FlightNo,f.Origin+'→'+f.Destination,f.STA||'—',f.ATA||'—',f.STD||'—',f.ATD||'—',f.ParkingStand||'—'].forEach(v=>tr.appendChild(h('td',{},v)));
+    const std=h('td',{});std.appendChild(stBdg(autoSt));tr.appendChild(std);
+    const bc=h('td',{});bc.appendChild(compBdg(bl.CompletionStatus||'Not Started'));tr.appendChild(bc);
+    const fc2=h('td',{});fc2.appendChild(compBdg(fi2.CompletionStatus||'Not Started'));tr.appendChild(fc2);
+    const pfCell=h('td',{cls:'xs'});if(bl.PreFlightBriefingCheck){pfCell.appendChild(bdg('✓','bg'));if(bl.PreFlightBriefingCheckAt)pfCell.appendChild(ht('span','xs mut',' '+bl.PreFlightBriefingCheckAt));}else pfCell.appendChild(bdg('—','bgr'));tr.appendChild(pfCell);
+    const dmCell=h('td',{cls:'xs'});if(bl.DepMVTSent){dmCell.appendChild(bdg('✓','bg'));if(bl.DepMVTSentAt)dmCell.appendChild(ht('span','xs mut',' '+bl.DepMVTSentAt));}else dmCell.appendChild(bdg('—','bgr'));tr.appendChild(dmCell);
+    const amCell=h('td',{cls:'xs'});if(bl.ArrMVTSent){amCell.appendChild(bdg('✓','bg'));if(bl.ArrMVTSentAt)amCell.appendChild(ht('span','xs mut',' '+bl.ArrMVTSentAt));}else amCell.appendChild(bdg('—','bgr'));tr.appendChild(amCell);
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);tw.appendChild(tbl);tc.appendChild(tw);wrap.appendChild(tc);
+  // Checkbox activity detail
+  wrap.appendChild(ht('div','sec-t mt3','Checkbox Activity Log'));
+  const actCard=h('div',{cls:'card'});const atw=h('div',{cls:'tw'});const atbl=h('table',{});
+  const athr=h('tr',{});['Flight','Field','Status','Time Checked'].forEach(c=>athr.appendChild(h('th',{},c)));
+  atbl.appendChild(h('thead',{},athr));const atbody=h('tbody',{});
+  rFlights.forEach(f=>{
+    const bl=getBL(f.ID)||{};const fi2=getFIC(f.ID)||{};
+    [['Pre-flight Briefing (BL)','PreFlightBriefingCheck','PreFlightBriefingCheckAt',bl],['EZFW Sent (BL)','EZFWSent','EZFWSentAt',bl],['LIR Release (BL)','LIRReleaseCheck','LIRReleaseCheckAt',bl],['All Baggage Ready (BL)','AllBaggageReadyInBasement','AllBaggageReadyInBasementAt',bl],['Dep MVT Sent (BL)','DepMVTSent','DepMVTSentAt',bl],['Arr MVT Sent (BL)','ArrMVTSent','ArrMVTSentAt',bl],['CPM Checked (BL)','CPMChecked','CPMCheckedAt',bl],['Stand Avail. (FIC)','ParkingStandAvailabilityCheck','ParkingStandAvailabilityCheckAt',fi2],['TRC Available (FIC)','TRCAvailable','TRCAvailableAt',fi2],['Staff Available (FIC)','StaffAvailable','StaffAvailableAt',fi2],['GSE Available (FIC)','GSEAvailable','GSEAvailableAt',fi2],['Holds Closed (FIC)','HoldsClosedCheck','HoldsClosedCheckAt',fi2]].forEach(([lbl,key,tsKey,src])=>{
+      const tr=h('tr',{});tr.appendChild(h('td',{cls:'bld xs'},f.FlightNo));tr.appendChild(h('td',{cls:'xs'},lbl));
+      const vc=h('td',{});vc.appendChild(src[key]?bdg('✓ Done','bg'):bdg('Not Done','bgr'));tr.appendChild(vc);
+      tr.appendChild(h('td',{cls:'xs mut'},src[tsKey]||'—'));atbody.appendChild(tr);
+    });
+  });
+  atbl.appendChild(atbody);atw.appendChild(atbl);actCard.appendChild(atw);wrap.appendChild(actCard);
+  return wrap;
+}
+
+function downloadReport(){
+  const rDate=S.reportDate||S.dashDate;
+  let rFlights=DB.flights.filter(f=>!f.IsDeleted&&f.FlightDate===rDate);
+  if(S.reportFlight&&S.reportFlight.trim()) rFlights=rFlights.filter(f=>f.FlightNo.toLowerCase().includes(S.reportFlight.trim().toLowerCase()));
+  rFlights.sort((a,b)=>(a.STA||'').localeCompare(b.STA||''));
+  const rows=[['Flight No','Date','Origin','Destination','STA','ATA','STD','ATD','Stand','Status','Basement Status','FIC Status','Pre-flight Check','Pre-flight Time','EZFW Sent','LIR Release','LIR Release Time','All Baggage Ready','Baggage Ready Time','Dep MVT Sent','Dep MVT Time','Arr MVT Sent','Arr MVT Time','CPM Checked','CPM Time']];
+  rFlights.forEach(f=>{
+    const bl=getBL(f.ID)||{};const fi2=getFIC(f.ID)||{};
+    rows.push([f.FlightNo,f.FlightDate,f.Origin,f.Destination,f.STA||'',f.ATA||'',f.STD||'',f.ATD||'',f.ParkingStand||'',computeAutoStatus(f),bl.CompletionStatus||'Not Started',fi2.CompletionStatus||'Not Started',bl.PreFlightBriefingCheck?'Yes':'No',bl.PreFlightBriefingCheckAt||'',bl.EZFWSent?'Yes':'No',bl.LIRReleaseCheck?'Yes':'No',bl.LIRReleaseTime||'',bl.AllBaggageReadyInBasement?'Yes':'No',bl.AllBaggageReadyInBasementAt||'',bl.DepMVTSent?'Yes':'No',bl.DepMVTSentAt||'',bl.ArrMVTSent?'Yes':'No',bl.ArrMVTSentAt||'',bl.CPMChecked?'Yes':'No',bl.CPMCheckedAt||'']);
+  });
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='FIARS_Report_'+rDate+'.csv';a.click();URL.revokeObjectURL(url);
+  showToast('CSV report downloaded ✓','ts');
+}
+
+function downloadReportHTML(){
+  const rDate=S.reportDate||S.dashDate;
+  let rFlights=DB.flights.filter(f=>!f.IsDeleted&&f.FlightDate===rDate);
+  if(S.reportFlight&&S.reportFlight.trim()) rFlights=rFlights.filter(f=>f.FlightNo.toLowerCase().includes(S.reportFlight.trim().toLowerCase()));
+  rFlights.sort((a,b)=>(a.STA||'').localeCompare(b.STA||''));
+  const rRows=rFlights.map(f=>{
+    const bl=getBL(f.ID)||{};const fi2=getFIC(f.ID)||{};const st=computeAutoStatus(f);
+    const sc=st==='On Time'?'#16a34a':st.includes('Delayed')?'#d97706':st==='Cancelled'?'#dc2626':'#1e40af';
+    return `<tr><td><b>${f.FlightNo}</b></td><td>${f.Origin}→${f.Destination}</td><td>${f.STA||'—'}</td><td>${f.ATA||'—'}</td><td>${f.STD||'—'}</td><td>${f.ATD||'—'}</td><td>${f.ParkingStand||'—'}</td><td style="color:${sc};font-weight:600">${st}</td><td>${bl.CompletionStatus||'Not Started'}</td><td>${fi2.CompletionStatus||'Not Started'}</td><td>${bl.PreFlightBriefingCheck?'✓ '+(bl.PreFlightBriefingCheckAt||''):'—'}</td><td>${bl.DepMVTSent?'✓ '+(bl.DepMVTSentAt||''):'—'}</td><td>${bl.ArrMVTSent?'✓ '+(bl.ArrMVTSentAt||''):'—'}</td></tr>`;
+  }).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>FIARS Report ${rDate}</title><style>body{font-family:Segoe UI,sans-serif;padding:24px;color:#1a2540}h1{color:#0f2850}table{width:100%;border-collapse:collapse;font-size:13px}th{background:#0f2850;color:#fff;padding:8px 10px;text-align:left}td{padding:7px 10px;border-bottom:1px solid #e5e7eb}tr:nth-child(even)td{background:#f8faff}.foot{margin-top:16px;font-size:11px;color:#5a6a8a}</style></head><body><h1>✈ FIARS Report</h1><p>Date: <b>${rDate}</b> · Generated: ${new Date().toLocaleString()} · By: ${S.user.DisplayName} (${S.userRole})</p><table><thead><tr><th>Flight</th><th>Route</th><th>STA</th><th>ATA</th><th>STD</th><th>ATD</th><th>Stand</th><th>Status</th><th>Basement</th><th>FIC/Ramp</th><th>Pre-flight</th><th>Dep MVT</th><th>Arr MVT</th></tr></thead><tbody>${rRows}</tbody></table><p class="foot">FIARS · Confidential</p></body></html>`;
+  const blob=new Blob([html],{type:'text/html'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='FIARS_Report_'+rDate+'.html';a.click();URL.revokeObjectURL(url);
+  showToast('HTML report downloaded ✓','ts');
+}
+
+function renderAlerts(){
+  generateAlerts();
+  const wrap=h('div',{});
+
+  // ── Header ───────────────────────────────────────────────
+  const hdr=h('div',{cls:'flex ic jb mb3'});
+  hdr.appendChild(ht('h2','','Alerts & Notifications'));
+  const hbtns=h('div',{cls:'flex g2x'});
+  ['All','Critical','High','Medium','Low'].forEach(p=>{
+    const b=h('button',{cls:'btn btn-sm'+(S.alertF===p?' bp':''),onClick:()=>{S.alertF=p;render();}},p);
+    hbtns.appendChild(b);
+  });
+  if(canReport()){
+    const hb=h('button',{cls:'btn btn-sm'+(S.alertHistView?' bp':''),onClick:()=>{S.alertHistView=!S.alertHistView;render();}},ic('history',13),' Alert History');
+    hbtns.appendChild(hb);
+  }
+  hdr.appendChild(hbtns);wrap.appendChild(hdr);
+
+  // ── Alert History (managers) ─────────────────────────────
+  if(S.alertHistView&&canReport()){
+    const hcard=h('div',{cls:'card mb3'});
+    hcard.appendChild(ht('div','ch','Alert History'));
+    const df=h('div',{cls:'flex ic g2x mb3'});
+    df.appendChild(ht('span','xs mut bld','Date:'));
+    const di=h('input',{type:'date',cls:'fc',style:'width:148px',value:S.alertHistDate,onChange:e=>{S.alertHistDate=e.target.value;render();}});
+    df.appendChild(di);hcard.appendChild(df);
+    const histAlerts=DB.alerts.filter(a=>a.FiredDate===S.alertHistDate);
+    if(!histAlerts.length){
+      hcard.appendChild(ht('div','xs mut','No alerts recorded for '+S.alertHistDate+'.'));
+    } else {
+      const tw=h('div',{cls:'tw'});const tbl=h('table',{});
+      const thr=h('tr',{});['Flight','Alert','Dept','Priority','Fired At','Status','Resolved By','Resolved At'].forEach(c=>thr.appendChild(h('th',{},c)));
+      tbl.appendChild(h('thead',{},thr));
+      const tb=h('tbody',{});
+      [...histAlerts].sort((a,b)=>a.FiredAt.localeCompare(b.FiredAt)).forEach(a=>{
+        const fl=DB.flights.find(x=>x.ID===a.FlightID);
+        const tr=h('tr',{});
+        tr.appendChild(h('td',{cls:'bld xs'},fl?fl.FlightNo:'—'));
+        tr.appendChild(h('td',{cls:'xs'},a.AlertTitle));
+        tr.appendChild(h('td',{cls:'xs'},a.Department));
+        const ptd=h('td',{});ptd.appendChild(bdg(a.Priority,a.Priority==='Critical'?'br':a.Priority==='High'?'ba':'bb'));tr.appendChild(ptd);
+        tr.appendChild(h('td',{cls:'xs mut'},a.FiredAt.slice(11,16)));
+        const stTd=h('td',{});stTd.appendChild(bdg(a.Status||'Active',a.IsDismissed?(a.AutoDismissed?'bg':'bb'):'br'));tr.appendChild(stTd);
+        tr.appendChild(h('td',{cls:'xs mut'},a.DismissedBy||'—'));
+        tr.appendChild(h('td',{cls:'xs mut'},a.DismissedAt?a.DismissedAt.slice(11,16):'—'));
+        tb.appendChild(tr);
+      });
+      tbl.appendChild(tb);tw.appendChild(tbl);hcard.appendChild(tw);
+      // Summary stats
+      const total=histAlerts.length;
+      const resolved=histAlerts.filter(a=>a.IsDismissed).length;
+      const critical=histAlerts.filter(a=>a.Priority==='Critical').length;
+      const sg=h('div',{style:'display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px'});
+      [{l:'Total Alerts',v:total,c:'#2563eb'},{l:'Critical',v:critical,c:'#dc2626'},{l:'Resolved',v:resolved,c:'#16a34a'}].forEach(s=>{
+        const el=h('div',{cls:'stat'});el.appendChild(ht('div','lbl',s.l));const v=ht('div','val',String(s.v));v.style.color=s.c;el.appendChild(v);sg.appendChild(el);
+      });
+      hcard.appendChild(sg);
+    }
+    wrap.appendChild(hcard);
+  }
+
+  // ── Active Alerts ────────────────────────────────────────
+  const active=DB.alerts.filter(a=>{
+    if(a.IsDismissed) return false;
+    const dm=S.userDept==='All'||a.Department===S.userDept||a.Department==='All'||S.userRole!=='Agent';
+    const pm=S.alertF==='All'||a.Priority===S.alertF;
+    return dm&&pm;
+  });
+
+  if(!active.length){
+    const em=h('div',{style:'text-align:center;padding:36px;color:#5a6a8a'});
+    em.appendChild(ic('circle-check',36));
+    em.appendChild(ht('p','mt2 bld','All clear — no active alerts'));
+    em.appendChild(ht('p','xs mut','Alerts fire automatically based on real-time flight schedules'));
+    wrap.appendChild(em);
+  } else {
+    ht('div','xs mut mb2','Active ('+active.length+')');
+    active.sort((a,b)=>{const p={Critical:0,High:1,Medium:2,Low:3};return (p[a.Priority]||4)-(p[b.Priority]||4);}).forEach(a=>{
+      const prioColor={Critical:'#dc2626',High:'#d97706',Medium:'#2563eb',Low:'#5a6a8a'}[a.Priority]||'#5a6a8a';
+      const item=h('div',{style:`background:#fff;border:1px solid #d1daea;border-left:4px solid ${prioColor};border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px`});
+      item.appendChild(ic(a.Priority==='Critical'?'alert-triangle':a.Priority==='High'?'alert-circle':'info-circle',18));
+      const body=h('div',{cls:'f1'});
+      const hr=h('div',{cls:'flex ic g2x mb1'});
+      hr.appendChild(ht('span','bld sm',a.AlertTitle));
+      hr.appendChild(bdg(a.Priority,a.Priority==='Critical'?'br':a.Priority==='High'?'ba':'bb'));
+      hr.appendChild(bdg(a.Department,'bgr'));
+      body.appendChild(hr);
+      body.appendChild(ht('p','sm mb1',a.AlertMessage));
+      const ft=h('div',{cls:'flex ic g3x xs mut'});
+      ft.appendChild(document.createTextNode('Fired: '+a.FiredAt.slice(11,16)));
+      const fl=DB.flights.find(x=>x.ID===a.FlightID);
+      if(fl){
+        ft.appendChild(document.createTextNode(' · '));
+        const lk=ht('span','xs',fl.FlightNo);lk.style.cssText='color:#2563eb;cursor:pointer;font-weight:600';
+        lk.onclick=()=>{S.selFlight=fl;S.fdTab='times';S.modal='fd';render();};ft.appendChild(lk);
+      }
+      body.appendChild(ft);item.appendChild(body);
+      const db=h('button',{cls:'btn btn-sm',style:'flex-shrink:0',onClick:async()=>{
+        const al=DB.alerts.find(x=>x.ID===a.ID);
+        if(al){al.IsDismissed=true;al.AutoDismissed=false;al.DismissedBy=S.user.Username;al.DismissedAt=new Date().toISOString();al.Status='Manually Dismissed';}
+        addAudit('AlertDismiss','Alert','Dismissed: '+a.AlertTitle);
+        await saveDB();showToast('Alert dismissed','ti');render();
+      }},ic('check',12),' Dismiss');
+      item.appendChild(db);wrap.appendChild(item);
+    });
+  }
+
+  // ── Recently Dismissed ───────────────────────────────────
+  const recentDismissed=DB.alerts.filter(a=>a.IsDismissed&&a.FiredDate===todayStr()).slice(-8).reverse();
+  if(recentDismissed.length){
+    wrap.appendChild(ht('div','sec-t mt3','Recently Resolved Today ('+recentDismissed.length+')'));
+    recentDismissed.forEach(a=>{
+      const item=h('div',{style:'background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;opacity:.8'});
+      item.appendChild(ic('circle-check',14));
+      const b=h('div',{cls:'f1'});
+      b.appendChild(ht('div','sm bld',a.AlertTitle));
+      b.appendChild(ht('div','xs mut',(a.AutoDismissed?'Auto-resolved':'Dismissed by '+a.DismissedBy)+' · '+a.DismissedAt.slice(11,16)));
+      item.appendChild(b);wrap.appendChild(item);
+    });
+  }
+  return wrap;
+}
+
+function buildMyAccountCard(){
+  const myCard=h('div',{cls:'card card-sm mb3'});
+  myCard.appendChild(ht('div','ch','My Account'));
+  myCard.appendChild(ht('div','xs mut mb2','Signed in as '+S.user.DisplayName+' ('+S.user.Username+') · '+displayRole()));
+  const mrow=h('div',{cls:'g2'});
+  const npF=mkField('New Password','',false);npF.inp.type='password';npF.inp.placeholder='Min 6 characters';
+  const cpF=mkField('Confirm Password','',false);cpF.inp.type='password';cpF.inp.placeholder='Repeat password';
+  mrow.appendChild(npF.el);mrow.appendChild(cpF.el);myCard.appendChild(mrow);
+  const cpBtn=h('button',{cls:'btn bp btn-sm',style:'margin-top:8px',onClick:async()=>{
+    if(!isSupabaseConfigured){showToast('Password change requires Supabase connection','te');return;}
+    if(npF.inp.value.length<6){showToast('Password must be at least 6 characters','te');return;}
+    if(npF.inp.value!==cpF.inp.value){showToast('Passwords do not match','te');return;}
+    cpBtn.disabled=true;cpBtn.textContent='Updating...';
+    const {error}=await sb.auth.updateUser({password:npF.inp.value});
+    cpBtn.disabled=false;cpBtn.textContent='Update Password';
+    if(error){showToast('Failed: '+error.message,'te');return;}
+    addAudit('PasswordReset','User','Changed own password');await saveDB();
+    npF.inp.value='';cpF.inp.value='';
+    showToast('Password updated ✓','ts');
+  }},'Update Password');
+  myCard.appendChild(cpBtn);
+  if(!isSupabaseConfigured){
+    myCard.appendChild(ht('div','xs mut mt2','⚠ Local mode: password change requires Supabase connection.'));
+  }
+  return myCard;
+}
+
+function renderMyAccount(){
+  const wrap=h('div',{});
+  wrap.appendChild(ht('h2','mb3','My Account'));
+  wrap.appendChild(buildMyAccountCard());
+  return wrap;
+}
+
+function renderUsers(){
+  const wrap=h('div',{});
+  const hdr=h('div',{cls:'flex ic jb mb4'});hdr.appendChild(ht('h2','','User Management'));
+  const btns=h('div',{cls:'flex g2x'});
+  if(manageableRoles().length){
+    const ab=h('button',{cls:'btn bp',onClick:()=>{S.editUser=null;S.modal='addUser';render();}},ic('user-plus',13),' Add User');
+    btns.appendChild(ab);
+  }
+  if((S.userRole==='Manager'||isSuperAdmin())&&isSupabaseConfigured){
+    const unprovisioned=DB.users.filter(u=>!u.AuthProvisioned);
+    if(unprovisioned.length){
+      const pb=h('button',{cls:'btn bs',onClick:async()=>{
+        pb.disabled=true;pb.textContent='Provisioning...';
+        let okCount=0,failCount=0;
+        for(const usr of unprovisioned){
+          const pwd=usr.Password||'123456';
+          const {error}=await sbAdmin.auth.signUp({email:authEmail(usr.Username),password:pwd});
+          if(!error||error.message.includes('already registered')){usr.AuthProvisioned=true;okCount++;}
+          else failCount++;
+        }
+        addAudit('Update','User','Provisioned '+okCount+' demo accounts for Supabase Auth');
+        await saveDB();showToast(`Provisioned ${okCount} account(s)${failCount?', '+failCount+' failed':''} ✓`,'ts');render();
+      }},ic('shield-check',13),' Provision Demo Accounts ('+unprovisioned.length+')');
+      btns.appendChild(pb);
+    }
+  }
+  hdr.appendChild(btns);wrap.appendChild(hdr);
+
+  if(isSupabaseConfigured){
+    wrap.appendChild(h('div',{cls:'notebox'},'🔒 Secured by Supabase Auth. Initial passwords are set when an account is created; users should change their password from My Account.'));
+  } else {
+    wrap.appendChild(h('div',{cls:'notebox'},'⚠ Local mode: passwords stored as plain text. Connect Supabase for secure auth.'));
+  }
+
+  const card=h('div',{cls:'card'});const tw=h('div',{cls:'tw'});const tbl=h('table',{});
+  const thr=h('tr',{});['Name','Username / PRN','Role','Department','Status','Auth','Actions'].forEach(c=>thr.appendChild(h('th',{},c)));
+  tbl.appendChild(h('thead',{},thr));
+  const tbody=h('tbody',{});
+  DB.users.forEach(u=>{
+    const tr=h('tr',{});
+    const editable=canManageUser(u);
+    [u.DisplayName,u.Username].forEach(v=>tr.appendChild(h('td',{},v)));
+    const roleTd=h('td',{});
+    const roleLabel=(u.Username===SUPER_ADMIN_USERNAME)?'Super Admin':u.Role;
+    roleTd.appendChild(bdg(roleLabel,u.Username===SUPER_ADMIN_USERNAME?'br':'bb'));tr.appendChild(roleTd);
+    tr.appendChild(h('td',{},u.Department));
+    const std=h('td',{});std.appendChild(u.IsActive?bdg('Active','bg'):bdg('Inactive','bgr'));tr.appendChild(std);
+    const authTd=h('td',{});authTd.appendChild(u.AuthProvisioned?bdg('Linked','bg'):bdg('Not Linked','ba'));tr.appendChild(authTd);
+    const atd=h('td',{cls:'flex g2x'});
+    if(editable){
+      const eb=h('button',{cls:'btn btn-xs',onClick:()=>{S.editUser=u;S.modal='addUser';render();}},ic('edit',11),' Edit');atd.appendChild(eb);
+      const db=h('button',{cls:'btn btn-xs '+(u.IsActive?'bd':'bs'),onClick:async()=>{
+        const action=u.IsActive?'Deactivate':'Reactivate';
+        if(confirm(action+' '+u.DisplayName+'?')){
+          const usr=DB.users.find(x=>x.ID===u.ID);if(usr)usr.IsActive=!usr.IsActive;
+          addAudit('Update','User',(usr.IsActive?'Reactivated':'Deactivated')+': '+u.Username);
+          await saveDB();showToast('User '+(usr.IsActive?'reactivated':'deactivated'),'ti');render();
+        }
+      }},ic(u.IsActive?'user-off':'user-check',11),' '+(u.IsActive?'Deactivate':'Reactivate'));
+      atd.appendChild(db);
+    } else if(u.ID===S.userID){atd.appendChild(bdg('You','bb'));}
+    else {atd.appendChild(ht('span','xs mut','—'));}
+    tr.appendChild(atd);tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);tw.appendChild(tbl);card.appendChild(tw);wrap.appendChild(card);
+  if(isSupabaseConfigured){
+    wrap.appendChild(h('div',{cls:'xs mut mt2'},'Note: Resetting another user\'s password requires the Supabase Dashboard (Authentication → Users → select user → Reset Password). Changing a username/PRN creates a new login — the old one becomes unused.'));
+  }
+  return wrap;
+}
+
+function renderAudit(){
+  const wrap=h('div',{});wrap.appendChild(ht('h2','mb4','Audit Log'));
+  const fb=h('div',{cls:'flex ic g3x mb4 wrap'});
+  fb.appendChild(ht('span','sm mut','User:'));
+  const us=h('select',{cls:'fc',style:'width:140px',onChange:e=>{S.auditF.user=e.target.value;render();}});
+  const uns=['All',...[...new Set(DB.auditLogs.map(l=>l.Username))].sort()];
+  uns.forEach(u=>{const o=h('option',{value:u},u);if(u===S.auditF.user)o.selected=true;us.appendChild(o);});
+  fb.appendChild(us);
+  fb.appendChild(ht('span','sm mut','Action:'));
+  const as=h('select',{cls:'fc',style:'width:145px',onChange:e=>{S.auditF.action=e.target.value;render();}});
+  ['All','Login','LoginFailed','SignOut','Create','Update','Delete','Upload','PasswordReset','AlertDismiss'].forEach(a=>{const o=h('option',{value:a},a);if(a===S.auditF.action)o.selected=true;as.appendChild(o);});
+  fb.appendChild(as);wrap.appendChild(fb);
+  let logs=DB.auditLogs.slice().reverse();
+  if(S.auditF.user!=='All') logs=logs.filter(l=>l.Username===S.auditF.user);
+  if(S.auditF.action!=='All') logs=logs.filter(l=>l.ActionType===S.auditF.action);
+  const card=h('div',{cls:'card'});const tw=h('div',{cls:'tw'});const tbl=h('table',{});
+  const thr=h('tr',{});['Time','User','Role','Action','Target','Details'].forEach(c=>thr.appendChild(h('th',{},c)));
+  tbl.appendChild(h('thead',{},thr));
+  const tbody=h('tbody',{});
+  const ac={Login:'bg',LoginFailed:'br',SignOut:'bgr',Create:'bb',Update:'bb',Delete:'br',Upload:'ba',PasswordReset:'ba',AlertDismiss:'bgr'};
+  logs.forEach(l=>{
+    const tr=h('tr',{});tr.appendChild(h('td',{},fmtT(l.Timestamp)));
+    const uc=h('td',{});uc.appendChild(ht('div','bld xs',l.DisplayName));uc.appendChild(ht('div','xs mut',l.Username));tr.appendChild(uc);
+    tr.appendChild(h('td',{},l.Role||''));
+    const act=h('td',{});act.appendChild(bdg(l.ActionType,ac[l.ActionType]||'bgr'));tr.appendChild(act);
+    tr.appendChild(h('td',{},l.TargetType||'—'));
+    tr.appendChild(h('td',{style:'max-width:180px;white-space:normal;font-size:12px'},l.Details||''));
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);tw.appendChild(tbl);card.appendChild(tw);wrap.appendChild(card);
+  return wrap;
+}
+
+function buildFDModal(){
+  const f=S.selFlight;
+  const bl=getBL(f.ID)||{};
+  const fi=getFIC(f.ID)||{};
+  const modal=h('div',{cls:'modal modal-lg'});
+  const mh=h('div',{cls:'mh'});
+  mh.appendChild(h('div',{cls:'mt'},ic('plane',14),' ',f.FlightNo,' — ',f.Origin,' → ',f.Destination));
+  const cl=h('button',{cls:'mc',onClick:()=>{S.modal=null;render();}},'×');mh.appendChild(cl);modal.appendChild(mh);
+  const ig=h('div',{cls:'g4 mb3',style:'font-size:12px'});
+  [{l:'Date',v:f.FlightDate},{l:'Aircraft',v:f.AircraftType+' '+f.AircraftRegistration},{l:'Stand',v:f.ParkingStand},{l:'Status',v:null,bdg:stBdg(f.Status)}].forEach(item=>{
+    const c=h('div',{cls:'stat',style:'padding:8px 11px'});c.appendChild(ht('div','lbl',item.l));
+    if(item.bdg){const vd=h('div',{cls:'val',style:'font-size:13px'});vd.appendChild(item.bdg);c.appendChild(vd);}
+    else c.appendChild(ht('div','val sm',item.v||'—'));
+    ig.appendChild(c);
+  });
+  modal.appendChild(ig);
+  const tabs=h('div',{cls:'tabs'});
+  [['basement','Basement/LC'],['fic','FIC/Ramp'],['times','Flight Times']].forEach(([id,lbl])=>{
+    const tab=h('div',{cls:'tab'+(S.fdTab===id?' active':''),onClick:()=>{S.fdTab=id;render();}},lbl);tabs.appendChild(tab);
+  });
+  modal.appendChild(tabs);
+  if(S.fdTab==='basement') modal.appendChild(buildBLForm(f,bl));
+  else if(S.fdTab==='fic') modal.appendChild(buildFICForm(f,fi));
+  else modal.appendChild(buildTimesForm(f));
+  return modal;
+}
+
+function mkChk(lbl,val,ro,existingTs){
+  const row=h('div',{cls:'fck'});
+  const uid='c'+Math.random().toString(36).slice(2);
+  const inp=h('input',{type:'checkbox',id:uid});
+  if(val) inp.checked=true;if(ro) inp.disabled=true;
+  const lb=ht('label','',lbl);lb.setAttribute('for',uid);
+  const tsSpan=ht('span','xs mut','');tsSpan.style.cssText='margin-left:8px;font-size:10px;color:#5a6a8a';
+  // Show existing timestamp if already checked
+  if(val&&existingTs) tsSpan.textContent='✓ '+existingTs;
+  if(!ro){
+    inp.addEventListener('change',()=>{
+      // First-update only: once checked and timestamped, don't overwrite
+      if(inp.checked&&!inp._checkedAt&&!existingTs){
+        const now=new Date();
+        const ts=now.getHours().toString().padStart(2,'0')+now.getMinutes().toString().padStart(2,'0');
+        tsSpan.textContent='✓ '+ts;
+        inp._checkedAt=ts;
+      } else if(!inp.checked){
+        tsSpan.textContent='';inp._checkedAt='';
+      }
+    });
+  }
+  row.appendChild(inp);row.appendChild(lb);row.appendChild(tsSpan);return{el:row,inp};
+}
+function mkField(lbl,val,ro){
+  const row=h('div',{cls:'fr'});row.appendChild(ht('label','fl',lbl));
+  const inp=h('input',{type:'text',cls:'fc',value:val||''});if(ro) inp.disabled=true;
+  row.appendChild(inp);return{el:row,inp};
+}
+// Time field enforces hhmm format (4 digits)
+function mkTime(lbl,val,ro){
+  const row=h('div',{cls:'fr'});row.appendChild(ht('label','fl',lbl));
+  const inp=h('input',{type:'text',cls:'fc',value:val||'',placeholder:'hhmm',maxlength:'4'});
+  if(ro) inp.disabled=true;
+  inp.addEventListener('input',()=>{inp.value=inp.value.replace(/\D/g,'').slice(0,4);});
+  inp.addEventListener('blur',()=>{
+    const v=inp.value.replace(/\D/g,'');
+    if(v.length>=3){const hh=v.slice(0,2);const mm=v.slice(2,4).padEnd(2,'0');inp.value=hh+mm;}
+  });
+  row.appendChild(inp);return{el:row,inp};
+}
+function mkTA(lbl,val,ro){
+  const row=h('div',{cls:'fr'});row.appendChild(ht('label','fl',lbl));
+  const inp=h('textarea',{cls:'fc'},val||'');if(ro) inp.disabled=true;
+  row.appendChild(inp);return{el:row,inp};
+}
+function mkSel(lbl,val,opts,ro){
+  const row=h('div',{cls:'fr'});row.appendChild(ht('label','fl',lbl));
+  const sel=h('select',{cls:'fc'});opts.forEach(o=>{const op=h('option',{value:o},o);if(o===val)op.selected=true;sel.appendChild(op);});
+  if(ro) sel.disabled=true;row.appendChild(sel);return{el:row,sel};
+}
+function mkPRN(wrap,refs,nameKey,prnKey,nameLbl,prnLbl,existing,ro){
+  const g=h('div',{cls:'g2'});
+  const nf=mkField(nameLbl,existing[nameKey]||'',ro);refs[nameKey]=nf.inp;
+  const pf=mkField(prnLbl,existing[prnKey]||'',ro);refs[prnKey]=pf.inp;
+  g.appendChild(nf.el);g.appendChild(pf.el);wrap.appendChild(g);
+}
+
+function buildBLForm(f,bl){
+  const ro=!canBasement();
+  const wrap=h('div',{cls:'form-scroll'});const refs={};
+  const st=getServiceType(f);
+  const hasArr=st==='Terminating'||st==='TurnAround';
+  const hasDep=st==='Originating'||st==='TurnAround';
+
+  // ══ ARRIVAL PHASE ══════════════════════════════════════
+  if(hasArr){
+    wrap.appendChild(ht('div','sec-t','✈ Arrival Checks'));
+    const g1=h('div',{cls:'g2'});
+    const amc=mkChk('Arr MVT Sent',bl.ArrMVTSent,ro,bl.ArrMVTSentAt);refs.ArrMVTSent=amc.inp;amc.inp._checkedAt=bl.ArrMVTSentAt||'';
+    const cpmc=mkChk('CPM Checked',bl.CPMChecked,ro,bl.CPMCheckedAt);refs.CPMChecked=cpmc.inp;cpmc.inp._checkedAt=bl.CPMCheckedAt||'';
+    [amc,cpmc].forEach(x=>g1.appendChild(x.el));wrap.appendChild(g1);
+    wrap.appendChild(ht('div','sec-t','🧳 Arrival Baggage'));
+    const g2=h('div',{style:'display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px'});
+    const abn=mkField('Arr Belt No.',bl.ArrivalBaggageBeltNo||'',ro);refs.ArrivalBaggageBeltNo=abn.inp;
+    const fba=mkTime('First Baggage (hhmm)',bl.FirstBaggageArrivedAt||'',ro);refs.FirstBaggageArrivedAt=fba.inp;
+    const lba=mkTime('Last Baggage (hhmm)',bl.LastBaggageArrivedAt||'',ro);refs.LastBaggageArrivedAt=lba.inp;
+    [abn,fba,lba].forEach(x=>g2.appendChild(x.el));wrap.appendChild(g2);
+  }
+
+  // ══ DEPARTURE PHASE ═════════════════════════════════════
+  if(hasDep){
+    if(hasArr) wrap.appendChild(h('hr',{style:'border:none;border-top:2px dashed #d1daea;margin:14px 0'}));
+    wrap.appendChild(ht('div','sec-t','🛫 Departure Checklist'));
+    wrap.appendChild(ht('div','xs mut bld mb1','4 hrs before STD'));
+    const g3=h('div',{cls:'g2'});
+    const pfc=mkChk('Pre-flight Briefing ⚠',bl.PreFlightBriefingCheck,ro,bl.PreFlightBriefingCheckAt);refs.PreFlightBriefingCheck=pfc.inp;pfc.inp._checkedAt=bl.PreFlightBriefingCheckAt||'';
+    const ec=mkChk('EZFW Sent ⚠',bl.EZFWSent,ro,bl.EZFWSentAt);refs.EZFWSent=ec.inp;ec.inp._checkedAt=bl.EZFWSentAt||'';
+    const pc=mkChk('Plan Sent to Basement ⚠',bl.PlanSentToBasement,ro,bl.PlanSentToBasementAt);refs.PlanSentToBasement=pc.inp;pc.inp._checkedAt=bl.PlanSentToBasementAt||'';
+    [pfc,ec,pc].forEach(x=>g3.appendChild(x.el));wrap.appendChild(g3);
+    const us=mkSel('ULD Serviceable State',bl.ULDServiceableState||'Serviceable',['Serviceable','Unserviceable','N/A'],ro);refs.ULDServiceableState=us.sel;wrap.appendChild(us.el);
+    wrap.appendChild(ht('div','xs mut bld mb1 mt2','Departure Baggage'));
+    const g4=h('div',{style:'display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px'});
+    const dbn=mkField('Dep Belt No.',bl.DepBeltNo||'',ro);refs.DepBeltNo=dbn.inp;
+    const fbd=mkTime('First Baggage (hhmm)',bl.DepFirstBaggage||'',ro);refs.DepFirstBaggage=fbd.inp;
+    const lbd=mkTime('Last Baggage (hhmm)',bl.DepLastBaggage||'',ro);refs.DepLastBaggage=lbd.inp;
+    [dbn,fbd,lbd].forEach(x=>g4.appendChild(x.el));wrap.appendChild(g4);
+    wrap.appendChild(ht('div','xs mut bld mb1 mt2','01:30 before STD'));
+    const lirRow=h('div',{style:'display:grid;grid-template-columns:auto 1fr 1fr;gap:10px;align-items:end'});
+    const lirc=mkChk('LIR Release ⚠',bl.LIRReleaseCheck,ro,bl.LIRReleaseCheckAt);refs.LIRReleaseCheck=lirc.inp;lirc.inp._checkedAt=bl.LIRReleaseCheckAt||'';
+    const lirt=mkTime('Release Time',bl.LIRReleaseTime||'',ro);refs.LIRReleaseTime=lirt.inp;
+    const liran=mkField('Addition No.',bl.LIRAdditionNo||'',ro);refs.LIRAdditionNo=liran.inp;
+    lirRow.appendChild(lirc.el);lirRow.appendChild(lirt.el);lirRow.appendChild(liran.el);wrap.appendChild(lirRow);
+    wrap.appendChild(ht('div','xs mut bld mb1 mt2','00:15 before STD'));
+    const lsRow=h('div',{style:'display:grid;grid-template-columns:auto 1fr 1fr;gap:10px;align-items:end'});
+    const lsrc=mkChk('LC Release ⚠',bl.LCReleaseCheck,ro,bl.LCReleaseCheckAt);refs.LCReleaseCheck=lsrc.inp;lsrc.inp._checkedAt=bl.LCReleaseCheckAt||'';
+    const lcrt=mkTime('Release Time',bl.LCReleaseTime||'',ro);refs.LCReleaseTime=lcrt.inp;
+    const lcan=mkField('Addition No.',bl.LCAdditionNo||'',ro);refs.LCAdditionNo=lcan.inp;
+    lsRow.appendChild(lsrc.el);lsRow.appendChild(lcrt.el);lsRow.appendChild(lcan.el);wrap.appendChild(lsRow);
+    wrap.appendChild(ht('div','xs mut bld mb1 mt2','5 mins after ATD'));
+    const dmc=mkChk('Dep MVT Sent ⚠',bl.DepMVTSent,ro,bl.DepMVTSentAt);refs.DepMVTSent=dmc.inp;dmc.inp._checkedAt=bl.DepMVTSentAt||'';
+    wrap.appendChild(dmc.el);
+    wrap.appendChild(ht('div','sec-t','🚫 No Show Baggage'));
+    const gns=h('div',{cls:'g2'});
+    const nstrc=mkChk('No Show — Check with TRC',bl.NoShowCheckedWithTRC,ro,bl.NoShowCheckedWithTRCAt);refs.NoShowCheckedWithTRC=nstrc.inp;nstrc.inp._checkedAt=bl.NoShowCheckedWithTRCAt||'';
+    const nsbs=mkChk('No Show — Check with Basement',bl.NoShowCheckedWithBasement,ro,bl.NoShowCheckedWithBasementAt);refs.NoShowCheckedWithBasement=nsbs.inp;nsbs.inp._checkedAt=bl.NoShowCheckedWithBasementAt||'';
+    [nstrc,nsbs].forEach(x=>gns.appendChild(x.el));wrap.appendChild(gns);
+    const g6=h('div',{style:'display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:end;margin-top:8px'});
+    const mbc=mkChk('Missing Baggage',bl.MissingBaggage,ro,bl.MissingBaggageAt);refs.MissingBaggage=mbc.inp;mbc.inp._checkedAt=bl.MissingBaggageAt||'';
+    const mbt=mkField('Total Pcs',bl.MissingBaggageTotal||'',ro);refs.MissingBaggageTotal=mbt.inp;
+    g6.appendChild(mbc.el);g6.appendChild(mbt.el);wrap.appendChild(g6);
+    const g7=h('div',{style:'display:grid;grid-template-columns:auto 1fr 1fr;gap:10px;align-items:end;margin-top:6px'});
+    const lbc=mkChk('Left Behind',bl.LeftBehinds,ro,bl.LeftBehindAt);refs.LeftBehinds=lbc.inp;lbc.inp._checkedAt=bl.LeftBehindAt||'';
+    const lbt=mkField('Total Pcs',bl.LeftBehindTotal||'',ro);refs.LeftBehindTotal=lbt.inp;
+    const lbr=mkField('Reason',bl.LeftBehindReason||'',ro);refs.LeftBehindReason=lbr.inp;
+    g7.appendChild(lbc.el);g7.appendChild(lbt.el);g7.appendChild(lbr.el);wrap.appendChild(g7);
+  }
+
+  wrap.appendChild(ht('div','sec-t','🧳 Damage Baggage'));
+  const dbpc=mkField('PC Numbers',bl.DamageBaggagePCNumbers||'',ro);refs.DamageBaggagePCNumbers=dbpc.inp;wrap.appendChild(dbpc.el);
+  const rem=mkTA('General Remarks',bl.Remarks||'',ro);refs.Remarks=rem.inp;wrap.appendChild(rem.el);
+  wrap.appendChild(ht('div','sec-t','👤 Staff'));
+  const sg=h('div',{cls:'g2'});
+  const lcPRN=mkField('LC Staff PRN',bl.LCStaffPRN||'',ro);refs.LCStaffPRN=lcPRN.inp;
+  const bfPRN=mkField('Basement Foreman PRN',bl.BasementForemanPRN||'',ro);refs.BasementForemanPRN=bfPRN.inp;
+  [lcPRN,bfPRN].forEach(x=>sg.appendChild(x.el));wrap.appendChild(sg);
+
+  if(!ro){
+    const sb=h('button',{cls:'btn bp',style:'margin-top:12px',onClick:async()=>{
+      if(hasDep&&refs.MissingBaggage&&refs.MissingBaggage.checked&&!refs.MissingBaggageTotal.value.trim()){showToast('Missing Baggage Total required','te');return;}
+      if(hasDep&&refs.LeftBehinds&&refs.LeftBehinds.checked&&(!refs.LeftBehindTotal.value.trim()||!refs.LeftBehindReason.value.trim())){showToast('Left Behind Total and Reason required','te');return;}
+      const data={FlightID:f.ID,
+        ArrMVTSent:refs.ArrMVTSent?refs.ArrMVTSent.checked:false,ArrMVTSentAt:refs.ArrMVTSent?(refs.ArrMVTSent._checkedAt||bl.ArrMVTSentAt||''):'',
+        CPMChecked:refs.CPMChecked?refs.CPMChecked.checked:false,CPMCheckedAt:refs.CPMChecked?(refs.CPMChecked._checkedAt||bl.CPMCheckedAt||''):'',
+        ArrivalBaggageBeltNo:refs.ArrivalBaggageBeltNo?refs.ArrivalBaggageBeltNo.value:'',
+        FirstBaggageArrivedAt:refs.FirstBaggageArrivedAt?refs.FirstBaggageArrivedAt.value:'',
+        LastBaggageArrivedAt:refs.LastBaggageArrivedAt?refs.LastBaggageArrivedAt.value:'',
+        PreFlightBriefingCheck:refs.PreFlightBriefingCheck?refs.PreFlightBriefingCheck.checked:false,PreFlightBriefingCheckAt:refs.PreFlightBriefingCheck?(refs.PreFlightBriefingCheck._checkedAt||bl.PreFlightBriefingCheckAt||''):'',
+        EZFWSent:refs.EZFWSent?refs.EZFWSent.checked:false,EZFWSentAt:refs.EZFWSent?(refs.EZFWSent._checkedAt||bl.EZFWSentAt||''):'',
+        PlanSentToBasement:refs.PlanSentToBasement?refs.PlanSentToBasement.checked:false,PlanSentToBasementAt:refs.PlanSentToBasement?(refs.PlanSentToBasement._checkedAt||bl.PlanSentToBasementAt||''):'',
+        ULDServiceableState:refs.ULDServiceableState?refs.ULDServiceableState.value:'',
+        DepBeltNo:refs.DepBeltNo?refs.DepBeltNo.value:'',DepFirstBaggage:refs.DepFirstBaggage?refs.DepFirstBaggage.value:'',DepLastBaggage:refs.DepLastBaggage?refs.DepLastBaggage.value:'',
+        LIRReleaseCheck:refs.LIRReleaseCheck?refs.LIRReleaseCheck.checked:false,LIRReleaseCheckAt:refs.LIRReleaseCheck?(refs.LIRReleaseCheck._checkedAt||bl.LIRReleaseCheckAt||''):'',
+        LIRReleaseTime:refs.LIRReleaseTime?refs.LIRReleaseTime.value:'',LIRAdditionNo:refs.LIRAdditionNo?refs.LIRAdditionNo.value:'',
+        LCReleaseCheck:refs.LCReleaseCheck?refs.LCReleaseCheck.checked:false,LCReleaseCheckAt:refs.LCReleaseCheck?(refs.LCReleaseCheck._checkedAt||bl.LCReleaseCheckAt||''):'',
+        LCReleaseTime:refs.LCReleaseTime?refs.LCReleaseTime.value:'',LCAdditionNo:refs.LCAdditionNo?refs.LCAdditionNo.value:'',
+        DepMVTSent:refs.DepMVTSent?refs.DepMVTSent.checked:false,DepMVTSentAt:refs.DepMVTSent?(refs.DepMVTSent._checkedAt||bl.DepMVTSentAt||''):'',
+        NoShowCheckedWithTRC:refs.NoShowCheckedWithTRC?refs.NoShowCheckedWithTRC.checked:false,NoShowCheckedWithTRCAt:refs.NoShowCheckedWithTRC?(refs.NoShowCheckedWithTRC._checkedAt||bl.NoShowCheckedWithTRCAt||''):'',
+        NoShowCheckedWithBasement:refs.NoShowCheckedWithBasement?refs.NoShowCheckedWithBasement.checked:false,NoShowCheckedWithBasementAt:refs.NoShowCheckedWithBasement?(refs.NoShowCheckedWithBasement._checkedAt||bl.NoShowCheckedWithBasementAt||''):'',
+        MissingBaggage:refs.MissingBaggage?refs.MissingBaggage.checked:false,MissingBaggageTotal:refs.MissingBaggageTotal?refs.MissingBaggageTotal.value:'',
+        LeftBehinds:refs.LeftBehinds?refs.LeftBehinds.checked:false,LeftBehindTotal:refs.LeftBehindTotal?refs.LeftBehindTotal.value:'',LeftBehindReason:refs.LeftBehindReason?refs.LeftBehindReason.value:'',
+        DamageBaggagePCNumbers:refs.DamageBaggagePCNumbers.value,
+        LCStaffPRN:refs.LCStaffPRN.value,BasementForemanPRN:refs.BasementForemanPRN.value,
+        Remarks:refs.Remarks.value,LastUpdatedBy:S.user.Username,LastUpdatedAt:new Date().toISOString()};
+      const ex=DB.basementLogs.find(l=>l.FlightID===f.ID);const isNew=!ex;
+      if(ex) Object.assign(ex,data);else{data.ID=DB.nextID.basementLogs++;DB.basementLogs.push(data);}
+      addAudit(isNew?'Create':'Update','BasementLog','Basement/LC log saved for '+f.FlightNo,f.ID);
+      await saveDB();showToast('Basement/LC log saved ✓','ts');S.modal=null;render();
+    }},ic('device-floppy',13),' Save Basement/LC Log');wrap.appendChild(sb);
+  }
+  if(bl.LastUpdatedBy) wrap.appendChild(ht('div','xs mut mt2','Last updated by '+bl.LastUpdatedBy+' · '+fmtT(bl.LastUpdatedAt)));
+  return wrap;
+}
+
+function buildFICForm(f,fi){
+  const ro=!canFIC();
+  const wrap=h('div',{cls:'form-scroll'});const refs={};
+  const st=getServiceType(f);
+  const hasArr=st==='Terminating'||st==='TurnAround';
+  const hasDep=st==='Originating'||st==='TurnAround';
+
+  // ══ GENERAL CHECKS ══════════════════════════════════════
+  wrap.appendChild(ht('div','sec-t','✅ General Checks'));
+  const g1=h('div',{cls:'g2'});
+  const sc=mkChk('Parking Stand Availability Check',fi.ParkingStandAvailabilityCheck,ro,fi.ParkingStandAvailabilityCheckAt);refs.ParkingStandAvailabilityCheck=sc.inp;sc.inp._checkedAt=fi.ParkingStandAvailabilityCheckAt||'';
+  const tc=mkChk('TRC Available',fi.TRCAvailable,ro,fi.TRCAvailableAt);refs.TRCAvailable=tc.inp;tc.inp._checkedAt=fi.TRCAvailableAt||'';
+  const brc=mkChk('Baggage Rep Available',fi.BaggageRepAvailable,ro,fi.BaggageRepAvailableAt);refs.BaggageRepAvailable=brc.inp;brc.inp._checkedAt=fi.BaggageRepAvailableAt||'';
+  const drc=mkChk('Driver Available',fi.DriverAvailable,ro,fi.DriverAvailableAt);refs.DriverAvailable=drc.inp;drc.inp._checkedAt=fi.DriverAvailableAt||'';
+  const opc=mkChk('Operator Available',fi.OperatorAvailable,ro,fi.OperatorAvailableAt);refs.OperatorAvailable=opc.inp;opc.inp._checkedAt=fi.OperatorAvailableAt||'';
+  [sc,tc,brc,drc,opc].forEach(x=>g1.appendChild(x.el));wrap.appendChild(g1);
+
+  // ══ ARRIVAL PHASE ═══════════════════════════════════════
+  if(hasArr){
+    wrap.appendChild(ht('div','sec-t','✈ Arrival Info'));
+    const g2=h('div',{cls:'g2'});
+    const fot=mkTime('First Baggage Offload (hhmm)',fi.FirstBaggageOffloadTime||'',ro);refs.FirstBaggageOffloadTime=fot.inp;
+    const lot=mkTime('Last Baggage Offload (hhmm)',fi.LastBaggageOffloadTime||'',ro);refs.LastBaggageOffloadTime=lot.inp;
+    [fot,lot].forEach(x=>g2.appendChild(x.el));wrap.appendChild(g2);
+  }
+
+  // ══ DEPARTURE PHASE ═════════════════════════════════════
+  if(hasDep){
+    if(hasArr) wrap.appendChild(h('hr',{style:'border:none;border-top:2px dashed #d1daea;margin:14px 0'}));
+    wrap.appendChild(ht('div','sec-t','🛫 Departure Checks'));
+    wrap.appendChild(ht('div','xs mut bld mb1','00:20 before STD'));
+    const ns_bs=mkChk('No-Show Baggage — Check with Basement ⚠',fi.NoShowCheckedWithBasement,ro,fi.NoShowCheckedWithBasementAt);refs.NoShowCheckedWithBasement=ns_bs.inp;ns_bs.inp._checkedAt=fi.NoShowCheckedWithBasementAt||'';
+    wrap.appendChild(ns_bs.el);
+    wrap.appendChild(ht('div','xs mut bld mb1 mt2','00:10 before STD'));
+    const ns_trc=mkChk('No-Show Baggage — Check with TRC ⚠',fi.NoShowCheckedWithTRC,ro,fi.NoShowCheckedWithTRCAt);refs.NoShowCheckedWithTRC=ns_trc.inp;ns_trc.inp._checkedAt=fi.NoShowCheckedWithTRCAt||'';
+    wrap.appendChild(ns_trc.el);
+    const g3=h('div',{cls:'g2',style:'margin-top:8px'});
+    const blfc=mkChk('Baggage Left Basement',fi.BaggageLeftBasement,ro,fi.BaggageLeftBasementAt);refs.BaggageLeftBasement=blfc.inp;blfc.inp._checkedAt=fi.BaggageLeftBasementAt||'';
+    const brpc=mkChk('Baggage Received in Parking',fi.BaggageReceivedInParking,ro,fi.BaggageReceivedInParkingAt);refs.BaggageReceivedInParking=brpc.inp;brpc.inp._checkedAt=fi.BaggageReceivedInParkingAt||'';
+    [blfc,brpc].forEach(x=>g3.appendChild(x.el));wrap.appendChild(g3);
+  }
+
+  // ══ STAFF ═══════════════════════════════════════════════
+  wrap.appendChild(ht('div','sec-t','👤 Staff'));
+  const staffG=h('div',{cls:'g2'});
+  const bprn=mkField('Baggage Rep PRN',fi.BaggageRepPRN||'',ro);refs.BaggageRepPRN=bprn.inp;
+  const tprn=mkField('TRC PRN',fi.TRCPRN||'',ro);refs.TRCPRN=tprn.inp;
+  [bprn,tprn].forEach(x=>staffG.appendChild(x.el));wrap.appendChild(staffG);
+
+  // ══ REMARKS ═════════════════════════════════════════════
+  const rem=mkTA('General Remarks',fi.Remarks||'',ro);refs.Remarks=rem.inp;wrap.appendChild(rem.el);
+
+  if(!ro){
+    const sb=h('button',{cls:'btn bp',style:'margin-top:12px',onClick:async()=>{
+      const data={FlightID:f.ID,
+        ParkingStandAvailabilityCheck:refs.ParkingStandAvailabilityCheck.checked,ParkingStandAvailabilityCheckAt:refs.ParkingStandAvailabilityCheck._checkedAt||fi.ParkingStandAvailabilityCheckAt||'',
+        TRCAvailable:refs.TRCAvailable.checked,TRCAvailableAt:refs.TRCAvailable._checkedAt||fi.TRCAvailableAt||'',
+        BaggageRepAvailable:refs.BaggageRepAvailable.checked,BaggageRepAvailableAt:refs.BaggageRepAvailable._checkedAt||fi.BaggageRepAvailableAt||'',
+        DriverAvailable:refs.DriverAvailable.checked,DriverAvailableAt:refs.DriverAvailable._checkedAt||fi.DriverAvailableAt||'',
+        OperatorAvailable:refs.OperatorAvailable.checked,OperatorAvailableAt:refs.OperatorAvailable._checkedAt||fi.OperatorAvailableAt||'',
+        FirstBaggageOffloadTime:refs.FirstBaggageOffloadTime?refs.FirstBaggageOffloadTime.value:'',
+        LastBaggageOffloadTime:refs.LastBaggageOffloadTime?refs.LastBaggageOffloadTime.value:'',
+        NoShowCheckedWithBasement:refs.NoShowCheckedWithBasement?refs.NoShowCheckedWithBasement.checked:false,NoShowCheckedWithBasementAt:refs.NoShowCheckedWithBasement?(refs.NoShowCheckedWithBasement._checkedAt||fi.NoShowCheckedWithBasementAt||''):'',
+        NoShowCheckedWithTRC:refs.NoShowCheckedWithTRC?refs.NoShowCheckedWithTRC.checked:false,NoShowCheckedWithTRCAt:refs.NoShowCheckedWithTRC?(refs.NoShowCheckedWithTRC._checkedAt||fi.NoShowCheckedWithTRCAt||''):'',
+        BaggageLeftBasement:refs.BaggageLeftBasement?refs.BaggageLeftBasement.checked:false,BaggageLeftBasementAt:refs.BaggageLeftBasement?(refs.BaggageLeftBasement._checkedAt||fi.BaggageLeftBasementAt||''):'',
+        BaggageReceivedInParking:refs.BaggageReceivedInParking?refs.BaggageReceivedInParking.checked:false,BaggageReceivedInParkingAt:refs.BaggageReceivedInParking?(refs.BaggageReceivedInParking._checkedAt||fi.BaggageReceivedInParkingAt||''):'',
+        BaggageRepPRN:refs.BaggageRepPRN.value,TRCPRN:refs.TRCPRN.value,
+        Remarks:refs.Remarks.value,LastUpdatedBy:S.user.Username,LastUpdatedAt:new Date().toISOString()};
+      const ex=DB.ficLogs.find(l=>l.FlightID===f.ID);const isNew=!ex;
+      if(ex) Object.assign(ex,data);else{data.ID=DB.nextID.ficLogs++;DB.ficLogs.push(data);}
+      addAudit(isNew?'Create':'Update','FICLog','FIC/Ramp log saved for '+f.FlightNo,f.ID);
+      await saveDB();showToast('FIC/Ramp log saved ✓','ts');S.modal=null;render();
+    }},ic('device-floppy',13),' Save FIC/Ramp Log');wrap.appendChild(sb);
+  }
+  if(fi.LastUpdatedBy) wrap.appendChild(ht('div','xs mut mt2','Last updated by '+fi.LastUpdatedBy+' · '+fmtT(fi.LastUpdatedAt)));
+  return wrap;
+}
+
+function buildTimesForm(f){
+  const ro=!(S.userRole==='Manager'||S.userRole==='Duty Manager'||S.userDept==='FIC/Ramp');
+  const wrap=h('div',{cls:'form-scroll'});const refs={};
+  const st=getServiceType(f);
+  const hasArr=st==='Terminating'||st==='TurnAround';
+  const hasDep=st==='Originating'||st==='TurnAround';
+
+  // ══ ARRIVAL TIMES ═══════════════════════════════════════
+  if(hasArr){
+    wrap.appendChild(ht('div','sec-t','✈ Arrival Times'));
+    const g1=h('div',{style:'display:grid;grid-template-columns:1fr 1fr;gap:10px'});
+    const sdaF=mkField('SDA (Scheduled Date Arr)',f.SDA||f.FlightDate,true);g1.appendChild(sdaF.el);
+    const adaF=mkField('ADA (Actual Date Arr)',f.ActualDateArr||f.SDA||f.FlightDate,ro);refs.ActualDateArr=adaF.inp;adaF.inp.type='date';g1.appendChild(adaF.el);
+    wrap.appendChild(g1);
+    const g1b=h('div',{style:'display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px'});
+    const staF=mkTime('STA (hhmm)',f.STA||'',true);g1b.appendChild(staF.el);
+    const ataF=mkTime('ATA (hhmm) ⚠',f.ATA||'',ro);refs.ATA=ataF.inp;g1b.appendChild(ataF.el);
+    wrap.appendChild(g1b);
+  }
+
+  // ══ DEPARTURE TIMES ═════════════════════════════════════
+  if(hasDep){
+    if(hasArr) wrap.appendChild(h('hr',{style:'border:none;border-top:2px dashed #d1daea;margin:14px 0'}));
+    wrap.appendChild(ht('div','sec-t','🛫 Departure Times'));
+    const g2=h('div',{style:'display:grid;grid-template-columns:1fr 1fr;gap:10px'});
+    const sddF=mkField('SDD (Scheduled Date Dep)',f.SDD||f.FlightDate,true);g2.appendChild(sddF.el);
+    const addF=mkField('ADD (Actual Date Dep)',f.ActualDateDep||f.SDD||f.FlightDate,ro);refs.ActualDateDep=addF.inp;addF.inp.type='date';g2.appendChild(addF.el);
+    wrap.appendChild(g2);
+    const g2b=h('div',{style:'display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px'});
+    const stdF=mkTime('STD (hhmm)',f.STD||'',true);g2b.appendChild(stdF.el);
+    const atdF=mkTime('ATD (hhmm) ⚠',f.ATD||'',ro);refs.ATD=atdF.inp;g2b.appendChild(atdF.el);
+    wrap.appendChild(g2b);
+
+    // Station Delay
+    wrap.appendChild(ht('div','sec-t','⏱ Station Delay'));
+    // toggle
+    const delayChk=mkChk('Station Delay Occurred',f.StationDelay||false,ro,'');refs.StationDelay=delayChk.inp;
+    wrap.appendChild(delayChk.el);
+    const delayBlock=h('div',{style:'margin-top:8px'});
+    delayBlock.style.display=(f.StationDelay?'block':'none');
+    delayChk.inp.addEventListener('change',()=>{delayBlock.style.display=delayChk.inp.checked?'block':'none';});
+    // 3 rows of delay
+    const delayRefs=[];
+    for(let i=1;i<=3;i++){
+      const drow=h('div',{style:'display:grid;grid-template-columns:1fr 1fr 2fr;gap:8px;margin-bottom:6px;align-items:end'});
+      const dc=mkField(`${i}${i===1?'st':i===2?'nd':'rd'} Delay Code`,(f['DelayCode'+i]||''),ro);
+      const dt=mkTime(`Delay Time`,(f['DelayTime'+i]||''),ro);
+      const dr=mkField(`Delay Reason`,(f['DelayReason'+i]||''),ro);
+      drow.appendChild(dc.el);drow.appendChild(dt.el);drow.appendChild(dr.el);
+      delayBlock.appendChild(drow);
+      delayRefs.push({code:dc.inp,time:dt.inp,reason:dr.inp});
+    }
+    wrap.appendChild(delayBlock);
+    refs._delayRefs=delayRefs;
+  }
+
+  // ══ PARKING STAND ═══════════════════════════════════════
+  wrap.appendChild(ht('div','sec-t','🅿 Parking Stand ⚠ (3hrs before STD)'));
+  const psrow=h('div',{cls:'g2'});
+  const psf=mkField('Stand No.',f.ParkingStand||'',ro);refs.ParkingStand=psf.inp;
+  const pstime=mkTime('Allocation Time (hhmm)',f.StandAllocatedAt||'',ro);refs.StandAllocatedAt=pstime.inp;
+  [psf,pstime].forEach(x=>psrow.appendChild(x.el));wrap.appendChild(psrow);
+  const hist=f.StandHistory||[];
+  if(hist.length){
+    const htbl=h('div',{style:'background:#f8faff;border-radius:6px;padding:8px;margin-top:6px'});
+    htbl.appendChild(ht('div','xs mut mb1','Stand Change History'));
+    hist.forEach(sh=>htbl.appendChild(ht('div','xs','🅿 '+sh.stand+' — '+sh.time+(sh.by?' by '+sh.by:''))));
+    wrap.appendChild(htbl);
+  }
+
+  // ══ AIRCRAFT ════════════════════════════════════════════
+  wrap.appendChild(ht('div','sec-t','✈ Aircraft'));
+  const acg=h('div',{cls:'g2'});
+  const acTypes=['B737','B737 MAX','B777','B787','A320','A321','A321 NEO','A330','A350','Other'];
+  const actSel=mkSel('A/C Type',f.AircraftType||'A320',acTypes,ro);refs.AircraftType=actSel.sel;
+  const acrF=mkField('A/C Registration',f.AircraftRegistration||'',ro);refs.AircraftRegistration=acrF.inp;
+  [actSel,acrF].forEach(x=>acg.appendChild(x.el));wrap.appendChild(acg);
+
+  wrap.appendChild(h('div',{cls:'notebox',style:'margin-top:8px'},'⚠ Fields marked ⚠ are notifiable — missing values will appear in Alerts.'));
+
+  if(!ro){
+    const sb=h('button',{cls:'btn bp',style:'margin-top:12px',onClick:async()=>{
+      const fl=DB.flights.find(x=>x.ID===f.ID);
+      if(fl){
+        const newATA=refs.ATA?refs.ATA.value:'';
+        const newATD=refs.ATD?refs.ATD.value:'';
+        const newStand=refs.ParkingStand.value;
+        if(newStand&&newStand!==fl.ParkingStand){
+          const history=fl.StandHistory||[];
+          const now=new Date();const ts=now.getHours().toString().padStart(2,'0')+now.getMinutes().toString().padStart(2,'0');
+          history.push({stand:newStand,time:ts,by:S.user.Username});fl.StandHistory=history;
+        }
+        let autoStatus=fl.Status;
+        if(newATA&&fl.STA&&newATA>fl.STA) autoStatus='Arr Delayed';
+        else if(newATD&&fl.STD&&newATD>fl.STD) autoStatus='Dep Delayed';
+        else if(newATD&&fl.STD&&newATD<=fl.STD) autoStatus='On Time';
+        else if(newATA&&fl.STA&&newATA<=fl.STA) autoStatus='On Time';
+        const delayData={StationDelay:refs.StationDelay?refs.StationDelay.checked:false};
+        if(refs._delayRefs) refs._delayRefs.forEach((d,i)=>{delayData['DelayCode'+(i+1)]=d.code.value;delayData['DelayTime'+(i+1)]=d.time.value;delayData['DelayReason'+(i+1)]=d.reason.value;});
+        Object.assign(fl,{ATA:newATA,ATD:newATD,
+          ActualDateArr:refs.ActualDateArr?refs.ActualDateArr.value:fl.ActualDateArr,
+          ActualDateDep:refs.ActualDateDep?refs.ActualDateDep.value:fl.ActualDateDep,
+          ParkingStand:newStand,StandAllocatedAt:refs.StandAllocatedAt.value,
+          AircraftType:refs.AircraftType.value,AircraftRegistration:refs.AircraftRegistration.value,
+          Status:autoStatus,...delayData,UpdatedByUser:S.user.Username,UpdatedAt:new Date().toISOString()});
+        S.selFlight=fl;
+      }
+      addAudit('Update','Flight','Flight times updated: '+f.FlightNo,f.ID);
+      await saveDB();showToast('Flight times updated ✓','ts');S.modal=null;render();
+    }},ic('device-floppy',13),' Save Flight Times');
+    wrap.appendChild(sb);
+  }
+  return wrap;
+}
+
+function buildAddFlightModal(){
+  const isEdit=!!S.editFlight;
+  const f=S.editFlight||{};
+  const modal=h('div',{cls:'modal modal-lg'});
+  const mh=h('div',{cls:'mh'});
+  mh.appendChild(ht('div','mt',isEdit?'Edit Flight':'Generate Flight Schedule — Entry Screen'));
+  const cl=h('button',{cls:'mc',onClick:()=>{S.modal=null;S.editFlight=null;render();}},'×');mh.appendChild(cl);modal.appendChild(mh);
+
+  // ── STEP 1: Operation / Airline / Date ───────────────────
+  if(!isEdit&&S.scheduleStep===1){
+    modal.appendChild(ht('div','sec-t','Select Operation & Date'));
+    const g=h('div',{cls:'g3'});
+    const ops=mkSel('Operation',S.scheduleOp||'SCHEDULE',['SCHEDULE','CHARTER','SPECIAL'],false);ops.sel.onchange=e=>{S.scheduleOp=e.target.value;};
+    const al=mkField('Airline Code',S.scheduleAirline||'SV',false);al.inp.oninput=e=>{S.scheduleAirline=e.target.value.toUpperCase();};
+    const dt=mkField('Date',S.scheduleDate||new Date().toISOString().slice(0,10),false);dt.inp.type='date';dt.inp.oninput=e=>{S.scheduleDate=e.target.value;};
+    [ops,al,dt].forEach(x=>g.appendChild(x.el));modal.appendChild(g);
+    const sb=h('button',{cls:'btn bp',style:'margin-top:14px',onClick:()=>{
+      if(!S.scheduleAirline.trim()){showToast('Airline code required','te');return;}
+      if(!S.scheduleDate){showToast('Date required','te');return;}
+      S.scheduleStep=2;render();
+    }},ic('arrow-right',13),' Start Entry');
+    modal.appendChild(sb);
+    return modal;
+  }
+
+  // ── STEP 2: Flight Details ───────────────────────────────
+  const refs={};
+  // Service type selector (drives which fields show)
+  const stVal=isEdit?(f.ServiceType||'TurnAround'):(S._newServiceType||'TurnAround');
+  modal.appendChild(ht('div','sec-t','Flight Details'));
+  const topRow=h('div',{cls:'g3'});
+  const stSel=mkSel('Service Type',stVal,['Originating','Terminating','TurnAround'],false);
+  refs.ServiceType=stSel.sel;
+  stSel.sel.onchange=e=>{S._newServiceType=e.target.value;render();};
+  const acTypeSel=mkSel('A/C Type',f.AircraftType||'A320',['B737','B737 MAX','B777','B787','A320','A321','A321 NEO','A330','A350','Other'],false);refs.AircraftType=acTypeSel.sel;
+  const acReg=mkField('A/C Registration',f.AircraftRegistration||'',false);refs.AircraftRegistration=acReg.inp;
+  [stSel,acTypeSel,acReg].forEach(x=>topRow.appendChild(x.el));modal.appendChild(topRow);
+
+  const isTurn=stVal==='TurnAround';
+  const isOri=stVal==='Originating';
+  const isTerm=stVal==='Terminating';
+
+  // Daily flights + Departure day (for TurnAround)
+  if(isTurn){
+    const drow=h('div',{cls:'g2'});
+    const dfChk=mkChk('Daily Flights',f.DailyFlights||false,false,'');refs.DailyFlights=dfChk.inp;
+    const ddSel=mkSel('Departure Day',f.DepartureDay||'0-Same day',['0-Same day','+1-Next day'],false);refs.DepartureDay=ddSel.sel;
+    drow.appendChild(dfChk.el);drow.appendChild(ddSel.el);modal.appendChild(drow);
+  }
+
+  // Flight numbers
+  const fnRow=h('div',{cls:'g2'});
+  if(!isOri){const af=mkField('Arrival Flight Number',f.ArrFlightNo||'',false);refs.ArrFlightNo=af.inp;fnRow.appendChild(af.el);}
+  if(!isTerm){const df=mkField('Departure Flight Number',f.DepFlightNo||'',false);refs.DepFlightNo=df.inp;fnRow.appendChild(df.el);}
+  modal.appendChild(fnRow);
+
+  // STA / STD
+  const timeRow=h('div',{cls:'g2'});
+  if(!isOri){const sta=mkTime('STA (hhmm)',f.STA||'',false);refs.STA=sta.inp;timeRow.appendChild(sta.el);}
+  if(!isTerm){
+    const std=mkTime('STD (hhmm)',f.STD||'',false);refs.STD=std.inp;timeRow.appendChild(std.el);
+    // For turnaround: show departure date info
+    if(isTurn){
+      const depDate=isEdit?f.SDD:(S.scheduleDate||new Date().toISOString().slice(0,10));
+      const ddLabel=ht('div','xs mut mt2','Dep Date: '+depDate+(refs.DepartureDay&&refs.DepartureDay.value==='+1-Next day'?' (+1 next day)':' (same day)'));
+      timeRow.appendChild(ddLabel);
+    }
+  }
+  modal.appendChild(timeRow);
+
+  // Origins / Destinations
+  const routeRow=h('div',{cls:'g2'});
+  if(!isOri){const o1=mkField('Origin 1 (IATA)',f.Origin||'',false);refs.Origin=o1.inp;routeRow.appendChild(o1.el);}
+  if(!isTerm){const d1=mkField('Destination 1 (IATA)',f.Destination||'',false);refs.Destination=d1.inp;routeRow.appendChild(d1.el);}
+  modal.appendChild(routeRow);
+  const route2Row=h('div',{cls:'g2'});
+  const o2=mkField('Origin 2 (optional)',f.Origin2||'',false);refs.Origin2=o2.inp;
+  const d2=mkField('Destination 2 (optional)',f.Destination2||'',false);refs.Destination2=d2.inp;
+  route2Row.appendChild(o2.el);route2Row.appendChild(d2.el);modal.appendChild(route2Row);
+
+  // Remarks
+  const remRow=h('div',{cls:'g2'});
+  const ar=mkField('Arrival Remarks',f.ArrivalRemarks||'',false);refs.ArrivalRemarks=ar.inp;
+  const dr=mkField('Departure Remarks',f.DepartureRemarks||'',false);refs.DepartureRemarks=dr.inp;
+  remRow.appendChild(ar.el);remRow.appendChild(dr.el);modal.appendChild(remRow);
+
+  // Action buttons
+  const brow=h('div',{cls:'flex g2x',style:'margin-top:14px'});
+  if(!isEdit){
+    const backB=h('button',{cls:'btn',onClick:()=>{S.scheduleStep=1;render();}},ic('arrow-left',13),' Back');brow.appendChild(backB);
+  }
+  const saveB=h('button',{cls:'btn bp',onClick:async()=>{
+    const st=refs.ServiceType.value;
+    const arrFno=refs.ArrFlightNo?refs.ArrFlightNo.value.trim():'';
+    const depFno=refs.DepFlightNo?refs.DepFlightNo.value.trim():'';
+    const flightNo=arrFno||depFno;
+    if(!flightNo){showToast('At least one flight number required','te');return;}
+    const flightDate=isEdit?f.FlightDate:(S.scheduleDate||new Date().toISOString().slice(0,10));
+    const airline=isEdit?f.Airline:(S.scheduleAirline||'SV');
+    const depDay=refs.DepartureDay?refs.DepartureDay.value:'0-Same day';
+    let sdd=flightDate;
+    if(depDay==='+1-Next day'){
+      const nd=new Date(flightDate);nd.setDate(nd.getDate()+1);sdd=nd.toISOString().slice(0,10);
+    }
+    if(isEdit){
+      const fl=DB.flights.find(x=>x.ID===f.ID);
+      if(fl) Object.assign(fl,{ServiceType:st,ArrFlightNo:arrFno,DepFlightNo:depFno,FlightNo:flightNo,Origin:refs.Origin?refs.Origin.value:fl.Origin,Destination:refs.Destination?refs.Destination.value:fl.Destination,Origin2:refs.Origin2.value,Destination2:refs.Destination2.value,STA:refs.STA?refs.STA.value:fl.STA,STD:refs.STD?refs.STD.value:fl.STD,SDD:sdd,AircraftType:refs.AircraftType.value,AircraftRegistration:refs.AircraftRegistration.value,ArrivalRemarks:refs.ArrivalRemarks.value,DepartureRemarks:refs.DepartureRemarks.value,DailyFlights:refs.DailyFlights?refs.DailyFlights.checked:fl.DailyFlights,DepartureDay:depDay,UpdatedByUser:S.user.Username});
+      addAudit('Update','Flight','Flight updated: '+flightNo,f.ID);
+    } else {
+      const nf={ID:DB.nextID.flights++,FlightNo:flightNo,ServiceType:st,FlightDate:flightDate,Airline:airline,ArrFlightNo:arrFno,DepFlightNo:depFno,Origin:refs.Origin?refs.Origin.value:'',Destination:refs.Destination?refs.Destination.value:'',Origin2:refs.Origin2.value,Destination2:refs.Destination2.value,SDA:st!=='Originating'?flightDate:'',SDD:st!=='Terminating'?sdd:'',ADA:'',ADD:'',STA:refs.STA?refs.STA.value:'',STD:refs.STD?refs.STD.value:'',ATA:'',ATD:'',ParkingStand:'',AircraftType:refs.AircraftType.value,AircraftRegistration:refs.AircraftRegistration.value,DailyFlights:refs.DailyFlights?refs.DailyFlights.checked:false,DepartureDay:depDay,ArrivalRemarks:refs.ArrivalRemarks.value,DepartureRemarks:refs.DepartureRemarks.value,Status:'Scheduled',IsDeleted:false,DeleteReason:'',CreatedByUser:S.user.Username,UpdatedByUser:S.user.Username};
+      DB.flights.push(nf);addAudit('Create','Flight','Flight added: '+flightNo,nf.ID);
+    }
+    S._newServiceType=null;S.scheduleStep=1;
+    await saveDB();showToast('Flight saved ✓','ts');S.modal=null;S.editFlight=null;render();
+  }},ic('device-floppy',13),' Save Flight');
+  brow.appendChild(saveB);modal.appendChild(brow);
+
+  // Step indicator at top if step 2
+  if(!isEdit){
+    const stepInfo=ht('div','xs mut mb3','Operation: '+S.scheduleOp+' · Airline: '+S.scheduleAirline+' · Date: '+S.scheduleDate);
+    modal.insertBefore(stepInfo,modal.children[1]);
+  }
+  return modal;
+}
+
+function buildAddUserModal(){
+  const isEdit=!!S.editUser;const u=S.editUser||{};
+  const modal=h('div',{cls:'modal'});
+  const mh=h('div',{cls:'mh'});mh.appendChild(ht('div','mt',isEdit?'Edit User':'Add User'));
+  const cl=h('button',{cls:'mc',onClick:()=>{S.modal=null;S.editUser=null;render();}},'×');mh.appendChild(cl);modal.appendChild(mh);
+  const refs={};const g=h('div',{cls:'g2'});
+  const nf=mkField('Display Name',u.DisplayName,false);refs.DisplayName=nf.inp;
+  const uf=mkField('Username / PRN (lowercase)',u.Username,false);refs.Username=uf.inp;
+  g.appendChild(nf.el);g.appendChild(uf.el);modal.appendChild(g);
+
+  if(!isEdit){
+    const pf=mkField('Initial Password',u.Password||'',false);refs.Password=pf.inp;pf.inp.type='text';modal.appendChild(pf.el);
+    modal.appendChild(ht('div','xs mut mb2','Min 6 characters. The user can change this later from their account.'));
+  } else {
+    // New password field — only required if username/PRN is changed
+    const npf=mkField('New Password (only if changing Username/PRN)','',false);refs.NewPassword=npf.inp;npf.inp.type='text';npf.inp.placeholder='Min 6 characters';
+    modal.appendChild(npf.el);
+    modal.appendChild(ht('div','xs mut mb2','⚠ Changing Username/PRN creates a new login. The old login becomes unused — set a new initial password above.'));
+  }
+
+  const g2=h('div',{cls:'g2'});
+  const roleChangeAllowed=!isEdit||canChangeRoleFor(u);
+  const roleOpts=Array.from(new Set([...manageableRoles(),...(isEdit&&u.Role?[u.Role]:[])]));
+  const rs=mkSel('Role',u.Role||'Agent',roleOpts.length?roleOpts:['Agent'],!roleChangeAllowed);refs.Role=rs.sel;
+  const ds=mkSel('Department',u.Department||'FIC/Ramp',['All','FIC/Ramp','Basement/LC'],false);refs.Department=ds.sel;
+  g2.appendChild(rs.el);g2.appendChild(ds.el);modal.appendChild(g2);
+  if(!roleChangeAllowed&&isEdit){
+    modal.appendChild(h('div',{cls:'notebox'},'You do not have permission to change this user\'s role.'));
+  }
+  modal.appendChild(h('div',{cls:'notebox'},'Manager, Duty Manager, and OCC Agent must have Department = All. Agents must have FIC/Ramp or Basement/LC.'));
+
+  const sb2=h('button',{cls:'btn bp',style:'margin-top:6px',onClick:async()=>{
+    const uname=refs.Username.value.trim().toLowerCase();
+    if(!refs.DisplayName.value.trim()||!uname){showToast('All fields required','te');return;}
+    if(!isEdit&&(!refs.Password.value||refs.Password.value.length<6)){showToast('Password must be at least 6 characters','te');return;}
+    if(!/^[a-z0-9._-]+$/.test(uname)){showToast('Username/PRN: lowercase, numbers, . _ - only','te');return;}
+    const dup=DB.users.find(x=>x.Username===uname&&x.ID!==u.ID);
+    if(dup){showToast('Username/PRN already exists','te');return;}
+    const role=roleChangeAllowed?refs.Role.value:u.Role;
+    const dept=refs.Department.value;
+    if((role==='Manager'||role==='Duty Manager'||role==='OCC Agent')&&dept!=='All'){showToast('Manager/Duty Manager/OCC Agent must have Department = All','te');return;}
+    if(role==='Agent'&&!['FIC/Ramp','Basement/LC'].includes(dept)){showToast('Agents must have FIC/Ramp or Basement/LC','te');return;}
+    // Role-change permission re-check (defense in depth)
+    if(isEdit&&role!==u.Role&&!canChangeRoleFor(u)){showToast('You cannot change this user\'s role','te');return;}
+    if(!isEdit&&!manageableRoles().includes(role)){showToast('You cannot create users with this role','te');return;}
+
+    if(isEdit){
+      const usernameChanged=uname!==u.Username;
+      if(usernameChanged){
+        if(!refs.NewPassword.value||refs.NewPassword.value.length<6){showToast('New Password (min 6 chars) required when changing Username/PRN','te');return;}
+        sb2.disabled=true;sb2.textContent='Creating new login...';
+        if(isSupabaseConfigured){
+          const {error}=await sbAdmin.auth.signUp({email:authEmail(uname),password:refs.NewPassword.value});
+          if(error){sb2.disabled=false;sb2.textContent='Save User';showToast('Account creation failed: '+error.message,'te');return;}
+        }
+      }
+      const usr=DB.users.find(x=>x.ID===u.ID);
+      if(usr) Object.assign(usr,{DisplayName:refs.DisplayName.value,Username:uname,Role:role,Department:dept,AuthProvisioned:usernameChanged?true:usr.AuthProvisioned,UpdatedBy:S.user.Username,UpdatedAt:new Date().toISOString()});
+      addAudit('Update','User','User updated: '+uname+(usernameChanged?' (login changed from '+u.Username+')':''));
+      await saveDB();showToast('User saved ✓','ts');S.modal=null;S.editUser=null;render();
+    } else {
+      sb2.disabled=true;sb2.textContent='Creating account...';
+      if(isSupabaseConfigured){
+        const {data,error}=await sbAdmin.auth.signUp({email:authEmail(uname),password:refs.Password.value});
+        if(error){
+          sb2.disabled=false;sb2.textContent='Save User';
+          showToast('Account creation failed: '+error.message,'te');return;
+        }
+      }
+      DB.users.push({ID:DB.nextID.users++,DisplayName:refs.DisplayName.value,Username:uname,Role:role,Department:dept,IsActive:true,AuthProvisioned:true,CreatedAt:new Date().toISOString(),CreatedBy:S.user.Username});
+      addAudit('Create','User','User created: '+uname+' ('+role+')');
+      await saveDB();showToast('User created ✓','ts');S.modal=null;S.editUser=null;render();
+    }
+  }},ic('device-floppy',13),' Save User');modal.appendChild(sb2);
+  return modal;
+}
+
+function renderModal(){
+  const bd=h('div',{cls:'mbd'});
+  let content;
+  if(S.modal==='fd') content=buildFDModal();
+  else if(S.modal==='addFlight') content=buildAddFlightModal();
+  else if(S.modal==='addUser') content=buildAddUserModal();
+  else if(S.modal==='fmrPreview') content=buildFMRPreviewModal();
+  else return null;
+  bd.appendChild(content);
+  bd.onclick=e=>{if(e.target===bd){S.modal=null;S.editFlight=null;S.editUser=null;S.fmrPreview=null;render();}};
+  return bd;
+}
+
+(async()=>{
+  if(isSupabaseConfigured){
+    // Check for an existing logged-in session (page reload)
+    const {data:{session}}=await sb.auth.getSession();
+    if(session&&session.user&&session.user.email){
+      DB=await loadDB();
+      const uname=session.user.email.replace('@fiars.local','');
+      const found=DB.users.find(x=>x.Username===uname&&x.IsActive);
+      if(found){
+        S.user=found;S.userRole=found.Role;S.userDept=found.Department;S.userID=found.ID;S.loggedIn=true;S.nav='dashboard';
+        startRealtimeSync();
+      }
+    }
+  } else {
+    DB=await loadDB();
+  }
+  render();
+})();
+</script>
